@@ -26,7 +26,7 @@ public class Main extends Application {
     private static final int ROWS = 20;
     private static final int COLUMNS = ROWS;
     private static final int SQUARE_SIZE = WIDTH / ROWS;
-    private static final String[] FOODS_IMAGE = new String[]{"/img/ic_orange.png", "/img/ic_apple.png"};
+    private static final String[] FOODS_IMAGE = new String[]{"/assets/food/ic_orange.png", "/assets/food/ic_apple.png"};
 
     private static final int RIGHT = 0;
     private static final int LEFT = 1;
