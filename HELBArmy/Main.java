@@ -1,6 +1,3 @@
-// Test 01:17 20-10-2024
-// Test 01:37 20-10-2024
-
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -21,11 +18,10 @@ import javafx.util.Duration;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Date;
 
 public class Main extends Application {
 
-    private static final int WIDTH = 600;
+    private static final int WIDTH = 800;
     private static final int HEIGHT = WIDTH;
     private static final int ROWS = 20;
     private static final int COLUMNS = ROWS;
@@ -37,39 +33,13 @@ public class Main extends Application {
     private static final int UP = 2;
     private static final int DOWN = 3;
 
-    private static final int TROLL_TIME = 10000; // in milisecond (second * 1000)
-
     private GraphicsContext gc;
-    private List<Point> snakeBody = new ArrayList();
-    private Point snakeHead;
+    private Point snake;
     private Image foodImage;
-    private int foodX = -10;
-    private int foodY = -10;
+    private int foodX;
+    private int foodY;
     private boolean gameOver;
-    private int currentDirection;
     private int score = 0;
-
-    private Image hpImage;
-    private int hpX = -10;
-    private int hpY = -10;
-    private int cptHp = 0;
-    private boolean canSpawnHP = true;
-    private int nbHp = 1;
-
-    private Image poisonImage;
-    private int poisonX = -10;
-    private int poisonY = -10;
-
-    private Image trollImage;
-    private int trollX = -10;
-    private int trollY = -10;
-    private int cptTroll = 0;
-    private boolean canSpawnTroll = false;
-    private boolean keyTrolled = false;
-    private long resetTime = 0;
-
-    private int refreshRate = 80;
-    private Timeline timeline;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -86,113 +56,118 @@ public class Main extends Application {
             @Override
             public void handle(KeyEvent event) {
                 KeyCode code = event.getCode();
-                if (!keyTrolled)
-                {
-                    if (code == KeyCode.RIGHT || code == KeyCode.D) {
-                        if (currentDirection != LEFT) {
-                            currentDirection = RIGHT;
-                        }
-                    } else if (code == KeyCode.LEFT || code == KeyCode.Q) {
-                        if (currentDirection != RIGHT) {
-                            currentDirection = LEFT;
-                        }
-                    } else if (code == KeyCode.UP || code == KeyCode.Z) {
-                        if (currentDirection != DOWN) {
-                            currentDirection = UP;
-                        }
-                    } else if (code == KeyCode.DOWN || code == KeyCode.S) {
-                        if (currentDirection != UP) {
-                            currentDirection = DOWN;
-                        }
-                    }
+                if (code == KeyCode.RIGHT || code == KeyCode.D) {
+                    // MOVE RIGHT
+                    moveRight();
+                } else if (code == KeyCode.LEFT || code == KeyCode.Q) {
+                    // MOVE LEFT
+                    moveLeft();
+                } else if (code == KeyCode.UP || code == KeyCode.Z) {
+                    // MOVE UP
+                    moveUp();
+                } else if (code == KeyCode.DOWN || code == KeyCode.S) {
+                    // MOVE DOWN
+                    moveDown();
                 }
-                else
-                {
-                    if (code == KeyCode.LEFT || code == KeyCode.Q) {
-                        if (currentDirection != LEFT) {
-                            currentDirection = RIGHT;
-                        }
-                    } else if (code == KeyCode.RIGHT || code == KeyCode.D) {
-                        if (currentDirection != RIGHT) {
-                            currentDirection = LEFT;
-                        }
-                    } else if (code == KeyCode.DOWN || code == KeyCode.S) {
-                        if (currentDirection != DOWN) {
-                            currentDirection = UP;
-                        }
-                    } else if (code == KeyCode.UP || code == KeyCode.Z) {
-                        if (currentDirection != UP) {
-                            currentDirection = DOWN;
-                        }
-                    }
-                }
-                
             }
         });
 
-        for (int i = 0; i < 3; i++) {
-            snakeBody.add(new Point(5, ROWS / 2));
-        }
-        snakeHead = snakeBody.get(0);
+        snake = new Point(5, ROWS / 2);
         generateFood();
-        generateHp();
 
-        timeline = new Timeline(new KeyFrame(Duration.millis(refreshRate), e -> run(gc)));
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run(gc)));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
 
     private void run(GraphicsContext gc) {
-        if (nbHp <= 0) {
+        if (gameOver) {
             gc.setFill(Color.RED);
             gc.setFont(new Font("Digital-7", 70));
             gc.fillText("Game Over", WIDTH / 3.5, HEIGHT / 2);
             return;
         }
         drawBackground(gc);
-        drawArt(gc);
-
-        for (int i = snakeBody.size() - 1; i >= 1; i--) {
-            snakeBody.get(i).x = snakeBody.get(i - 1).x;
-            snakeBody.get(i).y = snakeBody.get(i - 1).y;
-        }
-
-        switch (currentDirection) {
-            case RIGHT:
-                moveRight();
-                break;
-            case LEFT:
-                moveLeft();
-                break;
-            case UP:
-                moveUp();
-                break;
-            case DOWN:
-                moveDown();
-                break;
-        }
+        drawFood(gc);
+        drawSnake(gc);
+        drawScore();
 
         gameOver();
         eatFood();
-        // System.out.println("cptHp : " + cptHp);
-        // System.out.println("cptTroll : " + cptTroll);
-        System.out.println("refresh rate : " + timeline.getRate());
-        if (keyTrolled)
+
+        System.out.println("Snake X : " + snake.getX());
+        System.out.println("Snake Y : " + snake.getY());
+
+        System.out.println("--------------------------");
+
+        System.out.println("Food X : " + foodX);
+        System.out.println("Food Y : " + foodY);
+
+        moveSnakeToFood();
+    }
+
+    private void moveSnakeToFood()
+    {
+        // DIAGONAL
+        /*
+        if (snake.getX() < foodX)
         {
-            System.out.println("current time : " + getCurrentTime());
-            System.out.println("reset time : " + resetTime);
-            if (getCurrentTime() >= resetTime)
-                changeKey();
+            moveRight();
         }
+        else if (snake.getX() > foodX)
+        {
+            moveLeft();
+        }
+
+        if (snake.getY() < foodY)
+        {
+            moveDown();
+        }
+        else if (snake.getY() > foodY)
+        {
+            moveUp();
+        } 
+        */
+
+        // X THEN Y
+
+        /*
+        if (snake.getX() < foodX)
+        {
+            moveRight();
+        }
+        else if (snake.getX() > foodX)
+        {
+            moveLeft();
+        }
+
+        if (snake.getX() == foodX)
+        {
+            if (snake.getY() < foodY)
+            {
+                moveDown();
+            }
+            else if (snake.getY() > foodY)
+            {
+                moveUp();
+            }
+        }
+        */
+
+    }
+
+    private double distance (int x1, int y1, int x2, int y2)
+    {
+        return Math.sqrt((Math.pow(x2, y2)));
     }
 
     private void drawBackground(GraphicsContext gc) {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLUMNS; j++) {
-            	if ((i + j) % 2 == 0) {
-                    gc.setFill(Color.web("AAD751")); // 000000
+                if ((i + j) % 2 == 0) {
+                    gc.setFill(Color.web("AAD751"));
                 } else {
-                    gc.setFill(Color.web("A2D149")); // FFFFFF
+                    gc.setFill(Color.web("A2D149"));
                 }
                 gc.fillRect(i * SQUARE_SIZE, j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
             }
@@ -200,203 +175,61 @@ public class Main extends Application {
     }
 
     private void generateFood() {
-        System.out.println("Generating food");
         start:
         while (true) {
             foodX = (int) (Math.random() * ROWS);
             foodY = (int) (Math.random() * COLUMNS);
 
-            for (Point snake : snakeBody) {
-                if (snake.getX() == foodX && snake.getY() == foodY) {
-                    continue start;
-                }
+            if (snake.getX() == foodX && snake.getY() == foodY) {
+                continue start;
             }
             foodImage = new Image(FOODS_IMAGE[(int) (Math.random() * FOODS_IMAGE.length)]);
             break;
         }
     }
 
-    private void generateHp()
-    {
-        System.out.println("Generating hp");
-        while (true) {
-            hpX = (int) (Math.random() * ROWS);
-            hpY = (int) (Math.random() * COLUMNS);
-
-            for (Point snake : snakeBody) {
-                if (snake.getX() == hpX && snake.getY() == hpY) {
-                    continue;
-                }
-            }
-            hpImage = new Image("/img/hearth.png");
-            break;
-        }
-    }
-
-    private void generatePoison()
-    {
-        System.out.println("Generating poison");
-        while (true) {
-            poisonX = (int) (Math.random() * ROWS);
-            poisonY = (int) (Math.random() * COLUMNS);
-
-            for (Point snake : snakeBody) {
-                if (snake.getX() == poisonX && snake.getY() == poisonY) {
-                    continue;
-                }
-            }
-            poisonImage = new Image("/img/poison.png");
-            break;
-        }
-    }
-
-    private void generateTroll()
-    {
-        System.out.println("Generating troll");
-        while (true) {
-            trollX = (int) (Math.random() * ROWS);
-            trollY = (int) (Math.random() * COLUMNS);
-
-            for (Point snake : snakeBody) {
-                if (snake.getX() == trollX && snake.getY() == trollY) {
-                    continue;
-                }
-            }
-
-            trollImage = new Image("/img/troll.png");
-            break;
-        }
-    }
-
-    private void drawArt(GraphicsContext gc)
-    {
-        // SCORE 
-        gc.setFill(Color.WHITE);
-        gc.setFont(new Font("Digital-7", 35));
-        gc.fillText("Score: " + score, 10, 35);
-
-        // FOOD
+    private void drawFood(GraphicsContext gc) {
         gc.drawImage(foodImage, foodX * SQUARE_SIZE, foodY * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
-        gc.drawImage(hpImage, hpX * SQUARE_SIZE, hpY * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
-        gc.drawImage(poisonImage, poisonX * SQUARE_SIZE, poisonY * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
-        gc.drawImage(trollImage, trollX * SQUARE_SIZE, trollY * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+    }
 
-        // SNAKE
+    private void drawSnake(GraphicsContext gc) {
         gc.setFill(Color.web("4674E9"));
-        gc.fillRoundRect(snakeHead.getX() * SQUARE_SIZE, snakeHead.getY() * SQUARE_SIZE, SQUARE_SIZE - 1, SQUARE_SIZE - 1, 35, 35);
-
-        for (int i = 1; i < snakeBody.size(); i++) {
-            gc.fillRoundRect(snakeBody.get(i).getX() * SQUARE_SIZE, snakeBody.get(i).getY() * SQUARE_SIZE, SQUARE_SIZE - 1,
-                    SQUARE_SIZE - 1, 20, 20);
-        }
+        gc.fillRoundRect(snake.getX() * SQUARE_SIZE, snake.getY() * SQUARE_SIZE, SQUARE_SIZE - 1, SQUARE_SIZE - 1, 35, 35);
     }
 
     private void moveRight() {
-        if (snakeHead.x == COLUMNS)
-            snakeHead.x = 0;
-        else
-            snakeHead.x++;
+        snake.x++;
     }
 
     private void moveLeft() {
-        if (snakeHead.x == 0)
-            snakeHead.x = COLUMNS;
-        else
-            snakeHead.x--;
+        snake.x--;
     }
 
     private void moveUp() {
-        if (snakeHead.y == 0)
-            snakeHead.y = ROWS;
-        else
-            snakeHead.y--;
+        snake.y--;
     }
 
     private void moveDown() {
-        if (snakeHead.y == ROWS)
-            snakeHead.y = 0;
-        else
-            snakeHead.y++;
+        snake.y++;
     }
 
     public void gameOver() {
-        for (int i = 1; i < snakeBody.size(); i++) {
-            if (snakeHead.x == snakeBody.get(i).getX() && snakeHead.getY() == snakeBody.get(i).getY()) {
-                nbHp --;
-                break;
-            }
+        if (snake.x < 0 || snake.y < 0 || snake.x * SQUARE_SIZE >= WIDTH || snake.y * SQUARE_SIZE >= HEIGHT) {
+            gameOver = true;
         }
     }
 
     private void eatFood() {
-        // FOOD
-        if (snakeHead.getX() == foodX && snakeHead.getY() == foodY) {
-            snakeBody.add(new Point(-1, -1));
-            System.out.println("Eating food");
+        if (snake.getX() == foodX && snake.getY() == foodY) {
             generateFood();
-            generatePoison();
             score += 5;
-            if (!canSpawnHP)
-                cptHp++;
-            if (cptHp != 0 && cptHp%5==0)
-            {
-                canSpawnHP = true;
-                generateHp();
-            }
-
-            if (!canSpawnTroll)
-                cptTroll++;
-            if (cptTroll != 0 && cptTroll%10==0)
-            {
-                canSpawnTroll = true;
-                generateTroll();
-            }
-            timeline.setRate(timeline.getRate() + timeline.getRate() / 10);
-
-
         }
-
-        // HP
-        if (snakeHead.getX() == hpX && snakeHead.getY() == hpY) {
-            System.out.println("Eating hp");
-            hpX = -10;
-            hpY = -10;
-            canSpawnHP=false;
-            nbHp++;
-        }
-
-        // POISON
-        if (snakeHead.getX() == poisonX && snakeHead.getY() == poisonY) {
-            System.out.println("Eating poison");
-            poisonX = -10;
-            poisonY = -10;
-            nbHp--;
-        }
-
-        // TROLL
-        if (snakeHead.getX() == trollX && snakeHead.getY() == trollY) {
-            System.out.println("Eating troll");
-            trollX = -10;
-            trollY = -10;
-            canSpawnTroll = false;
-
-            keyTrolled = true;
-            System.out.println("Starting timer");
-
-            resetTime = getCurrentTime() + TROLL_TIME;
-        }
-
     }
 
-    private long getCurrentTime()
-    {
-        return new Date().getTime();
-    }
-
-    private void changeKey()
-    {
-        keyTrolled = false;
-        System.out.println("End of timer");
+    private void drawScore() {
+        gc.setFill(Color.WHITE);
+        gc.setFont(new Font("Digital-7", 35));
+        gc.fillText("Score: " + score, 10, 35);
     }
 
     public static void main(String[] args) {
