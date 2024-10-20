@@ -7,7 +7,9 @@
 
 ## Git Command
 **Get a preview of changes available** `git fetch origin`
+
 **Bring changes in local repository** `git pull origin main`
+
 **Save specific file :** `git add file1 file2 fil3`
 
 **Save every file in current folder :** `git add .`
