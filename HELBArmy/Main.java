@@ -109,7 +109,7 @@ public class Main extends Application {
     private void moveSnakeToFood()
     {
         // DIAGONAL
-        /*
+        
         if (snake.getX() < foodX)
         {
             moveRight();
@@ -127,7 +127,7 @@ public class Main extends Application {
         {
             moveUp();
         } 
-        */
+        
 
         // X THEN Y
 
@@ -152,8 +152,8 @@ public class Main extends Application {
                 moveUp();
             }
         }
+        
         */
-
     }
 
     private double distance (int x1, int y1, int x2, int y2)
