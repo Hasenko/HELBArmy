@@ -26,24 +26,27 @@ public class Main extends Application {
     private static final int ROWS = 20;
     private static final int COLUMNS = ROWS;
     private static final int SQUARE_SIZE = WIDTH / ROWS;
-    private static final String[] FOODS_IMAGE = new String[]{"/assets/food/ic_orange.png", "/assets/food/ic_apple.png"};
 
     private static final int RIGHT = 0;
     private static final int LEFT = 1;
     private static final int UP = 2;
     private static final int DOWN = 3;
 
+    private static final Image NORTH_CITY_IMAGE = new Image("assets/city/north_city.png");
+    private static final Image SOUTH_CITY_IMAGE = new Image("assets/city/south_city.png");
+    private City northCity;
+    private City southCity;
+
+    private static final int TREE_NUMBERS = 150;
+    private Tree[] treesList = new Tree[TREE_NUMBERS];
+    private static final Image TREE_IMAGE = new Image("assets/special/tree.png");
+
     private GraphicsContext gc;
-    private Point snake;
-    private Image foodImage;
-    private int foodX;
-    private int foodY;
-    private boolean gameOver;
-    private int score = 0;
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("Snake");
+    public void start(Stage primaryStage) throws Exception
+    {
+        primaryStage.setTitle("HELBArmy");
         Group root = new Group();
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
         root.getChildren().add(canvas);
@@ -52,116 +55,124 @@ public class Main extends Application {
         primaryStage.show();
         gc = canvas.getGraphicsContext2D();
 
-        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent event) {
-                KeyCode code = event.getCode();
-                if (code == KeyCode.RIGHT || code == KeyCode.D) {
-                    // MOVE RIGHT
-                    moveRight();
-                } else if (code == KeyCode.LEFT || code == KeyCode.Q) {
-                    // MOVE LEFT
-                    moveLeft();
-                } else if (code == KeyCode.UP || code == KeyCode.Z) {
-                    // MOVE UP
-                    moveUp();
-                } else if (code == KeyCode.DOWN || code == KeyCode.S) {
-                    // MOVE DOWN
-                    moveDown();
-                }
-            }
-        });
-
-        snake = new Point(5, ROWS / 2);
-        generateFood();
+        createCity();
+        generateTree();
 
         Timeline timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run(gc)));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
 
-    private void run(GraphicsContext gc) {
-        if (gameOver) {
-            gc.setFill(Color.RED);
-            gc.setFont(new Font("Digital-7", 70));
-            gc.fillText("Game Over", WIDTH / 3.5, HEIGHT / 2);
-            return;
-        }
+    private void run(GraphicsContext gc)
+    {
         drawBackground(gc);
-        drawFood(gc);
-        drawSnake(gc);
-        drawScore();
-
-        gameOver();
-        eatFood();
-
-        System.out.println("Snake X : " + snake.getX());
-        System.out.println("Snake Y : " + snake.getY());
-
-        System.out.println("--------------------------");
-
-        System.out.println("Food X : " + foodX);
-        System.out.println("Food Y : " + foodY);
-
-        moveSnakeToFood();
+        drawCity(gc);
+        drawTree(gc);
     }
 
-    private void moveSnakeToFood()
+    private void createCity()
     {
-        // DIAGONAL
-        
-        if (snake.getX() < foodX)
-        {
-            moveRight();
-        }
-        else if (snake.getX() > foodX)
-        {
-            moveLeft();
-        }
+        northCity = new City(ROWS / 2 - 2, 0, "north");
+        southCity = new City(ROWS / 2 - 2, COLUMNS - 5, "south");
 
-        if (snake.getY() < foodY)
-        {
-            moveDown();
-        }
-        else if (snake.getY() > foodY)
-        {
-            moveUp();
-        } 
-        
+        System.out.println(northCity);
+        System.out.println(southCity);
+    }
 
-        // X THEN Y
-
+    private boolean isInCity(int x, int y)
+    {
         /*
-        if (snake.getX() < foodX)
-        {
-            moveRight();
-        }
-        else if (snake.getX() > foodX)
-        {
-            moveLeft();
-        }
+         * (10; 1)
+         * 
+         * north city : (8; 0) - (9; 0) - (10; 0) - (11; 0) - (12; 0)
+         *              (8; 1) - (9; 1) - (10; 1) - (11; 1) - (12; 1)
+         *              (8; 2) - (9; 2) - (10; 2) - (11; 2) - (12; 2)
+         *              (8; 3) - (9; 3) - (10; 3) - (11; 3) - (12; 3)
+         *              (8; 4) - (9; 4) - (10; 4) - (11; 4) - (12; 4)
+         * 
+         * south city : (8; 15) - (9; 15) - (10; 15) - (11; 15) - (12; 15)
+         *              (8; 16) - (9; 16) - (10; 16) - (11; 16) - (12; 16)
+         *              (8; 17) - (9; 17) - (10; 17) - (11; 17) - (12; 17)
+         *              (8; 18) - (9; 18) - (10; 18) - (11; 18) - (12; 18)
+         *              (8; 19) - (9; 19) - (10; 19) - (11; 19) - (12; 19)
+         */
 
-        if (snake.getX() == foodX)
-        {
-            if (snake.getY() < foodY)
-            {
-                moveDown();
-            }
-            else if (snake.getY() > foodY)
-            {
-                moveUp();
-            }
-        }
-        
-        */
+        System.out.println("===========================================================");
+        System.out.println("x : " + x);
+        System.out.println("y : " + y);
+        System.out.println("x >= northCity.getX() : " + (x >= northCity.getX()));
+        System.out.println("x <= northCity.getX() + 4 : " + (x <= northCity.getX() + 4));
+        System.out.println("y >= northCity.getY() : " + (y >= northCity.getY()));
+        System.out.println("y <= northCity.getY() + 4 : " + (y <= northCity.getY() + 4));
+        System.out.println("===========================================================");
+
+        return (x >= northCity.getX() - 2 && x <= northCity.getX() + 6 && y >= northCity.getY() && y <= northCity.getY() + 6)
+            || (x >= southCity.getX() - 2 && x <= southCity.getX() + 6 && y >= southCity.getY() - 2 && y <= southCity.getY() + 4);
+
     }
 
-    private double distance (int x1, int y1, int x2, int y2)
+    private void generateTree()
     {
-        return Math.sqrt((Math.pow(x2, y2)));
+        int x, y;
+        for (int i = 0; i < TREE_NUMBERS; i++) {
+            while(true)
+            {
+                x = (int) (Math.random() * ROWS);
+                y = (int) (Math.random() * COLUMNS);
+
+                while (isInCity(x, y))
+                {
+                    x = (int) (Math.random() * ROWS);
+                    y = (int) (Math.random() * COLUMNS);
+                }
+
+
+                boolean canContinue = true;
+
+                for (int j = 0; j < i; j++) {
+                    if((treesList[j].getX() == x && treesList[j].getY() == y))
+                    {
+                        canContinue = false;
+                        System.out.println("Random detected ! " + i + " on " + j);
+                        System.out.println("x : " + x);
+                        System.out.println("y : " + y);
+                        System.out.println("-----------------------");
+                        System.out.println(treesList[j]);
+                        System.out.println();
+                    }
+                }
+
+                if (canContinue)
+                {
+                    break;
+                }
+
+            }
+            
+            treesList[i] = new Tree(x, y);
+        }
+
+        for (int i = 0; i < TREE_NUMBERS; i++) {
+            System.out.println(i + " | " + treesList[i]);
+        }
+
     }
 
-    private void drawBackground(GraphicsContext gc) {
+    private void drawCity(GraphicsContext gc)
+    {
+        gc.drawImage(NORTH_CITY_IMAGE, northCity.getX() * SQUARE_SIZE, northCity.getY() * SQUARE_SIZE, SQUARE_SIZE * 5, SQUARE_SIZE * 5);
+        gc.drawImage(SOUTH_CITY_IMAGE, southCity.getX() * SQUARE_SIZE, southCity.getY() * SQUARE_SIZE, SQUARE_SIZE * 5, SQUARE_SIZE * 5);
+    }
+
+    private void drawTree(GraphicsContext gc)
+    {
+        for (Tree tree : treesList) {
+            gc.drawImage(TREE_IMAGE, tree.getX() * SQUARE_SIZE, tree.getY() * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+        }
+    }
+
+    private void drawBackground(GraphicsContext gc)
+    {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLUMNS; j++) {
                 if ((i + j) % 2 == 0) {
@@ -174,65 +185,8 @@ public class Main extends Application {
         }
     }
 
-    private void generateFood() {
-        start:
-        while (true) {
-            foodX = (int) (Math.random() * ROWS);
-            foodY = (int) (Math.random() * COLUMNS);
-
-            if (snake.getX() == foodX && snake.getY() == foodY) {
-                continue start;
-            }
-            foodImage = new Image(FOODS_IMAGE[(int) (Math.random() * FOODS_IMAGE.length)]);
-            break;
-        }
-    }
-
-    private void drawFood(GraphicsContext gc) {
-        gc.drawImage(foodImage, foodX * SQUARE_SIZE, foodY * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
-    }
-
-    private void drawSnake(GraphicsContext gc) {
-        gc.setFill(Color.web("4674E9"));
-        gc.fillRoundRect(snake.getX() * SQUARE_SIZE, snake.getY() * SQUARE_SIZE, SQUARE_SIZE - 1, SQUARE_SIZE - 1, 35, 35);
-    }
-
-    private void moveRight() {
-        snake.x++;
-    }
-
-    private void moveLeft() {
-        snake.x--;
-    }
-
-    private void moveUp() {
-        snake.y--;
-    }
-
-    private void moveDown() {
-        snake.y++;
-    }
-
-    public void gameOver() {
-        if (snake.x < 0 || snake.y < 0 || snake.x * SQUARE_SIZE >= WIDTH || snake.y * SQUARE_SIZE >= HEIGHT) {
-            gameOver = true;
-        }
-    }
-
-    private void eatFood() {
-        if (snake.getX() == foodX && snake.getY() == foodY) {
-            generateFood();
-            score += 5;
-        }
-    }
-
-    private void drawScore() {
-        gc.setFill(Color.WHITE);
-        gc.setFont(new Font("Digital-7", 35));
-        gc.fillText("Score: " + score, 10, 35);
-    }
-
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         launch(args);
     }
 }
