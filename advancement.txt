@@ -3,3 +3,4 @@
 3. North city was rotated with a simple website (hard coded directly in the image).
 	-> https://pinetools.com/rotate-image
 4. The area surronding bas can be tree free (my choice).
+5. All piquet of a team have the same vision number of there team member.
