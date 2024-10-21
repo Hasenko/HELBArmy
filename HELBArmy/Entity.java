@@ -1,9 +1,11 @@
 public abstract class Entity {
+    private final static int DEFAULT_WIDTH = 1;
+    public final int WIDTH;
+
     private int x;
     private int y;
     private String side;
     private String imagePath;
-
         
     public Entity(int x, int y, String side)
     {
@@ -16,6 +18,15 @@ public abstract class Entity {
         this.y = y;
         this.side = side;
         setImagePath(imagePath);
+        WIDTH = DEFAULT_WIDTH;
+    }
+
+    public Entity(int x, int y, String side, int width)
+    {
+        this.x = x;
+        this.y = y;
+        this.side = side;
+        WIDTH = width;
     }
 
     public int getX()

@@ -4,7 +4,7 @@ public class City extends Entity {
 
     public City(int x, int y, String side)
     {
-        super(x, y, side);
+        super(x, y, side, 5);
         if (side.equals("north"))
         {
             setImagePath(IMAGE_PATHS[0]);
