@@ -21,21 +21,18 @@ import java.util.List;
 
 public class View {
 
+    private static final int CITY_NUMBERS = 2;
+    private static final int TREE_NUMBERS = 150;
+    
     private static final int WIDTH = 800;
     private static final int HEIGHT = WIDTH;
     private static final int ROWS = 20;
     private static final int COLUMNS = ROWS;
     private static final int SQUARE_SIZE = WIDTH / ROWS;
 
-    private static final int RIGHT = 0;
-    private static final int LEFT = 1;
-    private static final int UP = 2;
-    private static final int DOWN = 3;
+    private ArrayList<Entity> entityList = new ArrayList<>();
 
-    private City northCity;
-    private City southCity;
-
-    private static final int TREE_NUMBERS = 150;
+    private City[] citiesList = new City[CITY_NUMBERS];
     private Tree[] treesList = new Tree[TREE_NUMBERS];
 
     private GraphicsContext gc;
@@ -51,7 +48,7 @@ public class View {
         primaryStage.show();
         gc = canvas.getGraphicsContext2D();
 
-        createCity();
+        generateCity();
         generateTree();
 
         Timeline timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run(gc)));
@@ -62,17 +59,23 @@ public class View {
     private void run(GraphicsContext gc)
     {
         drawBackground(gc);
-        drawCity(gc);
-        drawTree(gc);
+        //drawCity(gc);
+        //drawTree(gc);
+        drawEntity(gc);
     }
 
-    private void createCity()
+    private void generateCity()
     {
-        northCity = new City(ROWS / 2 - 2, 0, "north");
-        southCity = new City(ROWS / 2 - 2, COLUMNS - 5, "south");
+        citiesList[0] = new City(ROWS / 2 - 2, 0, "north");
+        citiesList[1] = new City(ROWS / 2 - 2, COLUMNS - 5, "south");
 
-        System.out.println(northCity);
-        System.out.println(southCity);
+        addEntity(citiesList);
+    }
+
+    private void addEntity(Entity[] list) {
+        for (Entity entity : list) {
+            entityList.add(entity);
+        }
     }
 
     private boolean isInCity(int x, int y)
@@ -93,17 +96,8 @@ public class View {
          *              (8; 19) - (9; 19) - (10; 19) - (11; 19) - (12; 19)
          */
 
-        System.out.println("===========================================================");
-        System.out.println("x : " + x);
-        System.out.println("y : " + y);
-        System.out.println("x >= northCity.getX() : " + (x >= northCity.getX()));
-        System.out.println("x <= northCity.getX() + 4 : " + (x <= northCity.getX() + 4));
-        System.out.println("y >= northCity.getY() : " + (y >= northCity.getY()));
-        System.out.println("y <= northCity.getY() + 4 : " + (y <= northCity.getY() + 4));
-        System.out.println("===========================================================");
-
-        return (x >= northCity.getX() - 2 && x <= northCity.getX() + 6 && y >= northCity.getY() && y <= northCity.getY() + 6)
-            || (x >= southCity.getX() - 2 && x <= southCity.getX() + 6 && y >= southCity.getY() - 2 && y <= southCity.getY() + 4);
+        return (x >= citiesList[0].getX() - 2 && x <= citiesList[0].getX() + 6 && y >= citiesList[0].getY() && y <= citiesList[0].getY() + 6)
+            || (x >= citiesList[1].getX() - 2 && x <= citiesList[1].getX() + 6 && y >= citiesList[1].getY() - 2 && y <= citiesList[1].getY() + 4);
 
     }
 
@@ -147,17 +141,14 @@ public class View {
             
             treesList[i] = new Tree(x, y);
         }
-
-        for (int i = 0; i < TREE_NUMBERS; i++) {
-            System.out.println(i + " | " + treesList[i]);
-        }
-
+        
+        addEntity(treesList);
     }
 
     private void drawCity(GraphicsContext gc)
     {
-        gc.drawImage(new Image(northCity.getImagePath()), northCity.getX() * SQUARE_SIZE, northCity.getY() * SQUARE_SIZE, SQUARE_SIZE * 5, SQUARE_SIZE * 5);
-        gc.drawImage(new Image(southCity.getImagePath()), southCity.getX() * SQUARE_SIZE, southCity.getY() * SQUARE_SIZE, SQUARE_SIZE * 5, SQUARE_SIZE * 5);
+        gc.drawImage(new Image(citiesList[0].getImagePath()), citiesList[0].getX() * SQUARE_SIZE, citiesList[0].getY() * SQUARE_SIZE, SQUARE_SIZE * 5, SQUARE_SIZE * 5);
+        gc.drawImage(new Image(citiesList[1].getImagePath()), citiesList[1].getX() * SQUARE_SIZE, citiesList[1].getY() * SQUARE_SIZE, SQUARE_SIZE * 5, SQUARE_SIZE * 5);
     }
 
     private void drawTree(GraphicsContext gc)
@@ -178,6 +169,14 @@ public class View {
                 }
                 gc.fillRect(i * SQUARE_SIZE, j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
             }
+        }
+    }
+
+    private void drawEntity(GraphicsContext gc)
+    {
+        for (Entity entity : entityList) {
+            // draw image here
+            gc.drawImage(new Image(entity.getImagePath()), entity.getX() * SQUARE_SIZE, entity.getY() * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
         }
     }
 }

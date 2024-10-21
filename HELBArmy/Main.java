@@ -20,7 +20,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception
     {
-        View view = new View(primaryStage);
+        HELBArmy controller = new HELBArmy(primaryStage);
     }
 
     public static void main(String[] args)

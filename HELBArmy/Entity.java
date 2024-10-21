@@ -1,6 +1,6 @@
 public abstract class Entity {
-    public int x;
-    public int y;
+    private int x;
+    private int y;
     private String side;
     private String imagePath;
 
