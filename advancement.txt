@@ -1,0 +1,5 @@
+1. I have to use MVC.
+2. Tree number is a random number.
+3. North city was rotated with a simple website (hard coded directly in the image).
+	-> https://pinetools.com/rotate-image
+4. The area surronding bas can be tree free (my choice).
