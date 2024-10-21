@@ -1,9 +1,23 @@
 public class City extends Entity {
     private int totalLogs;
+    private final String[] IMAGE_PATHS = {"assets/city/north_city.png", "assets/city/south_city.png"};
 
     public City(int x, int y, String side)
     {
         super(x, y, side);
+        if (side.equals("north"))
+        {
+            setImagePath(IMAGE_PATHS[0]);
+        }
+        else if (side.equals("south"))
+        {
+            setImagePath(IMAGE_PATHS[1]);
+        }
+        else
+        {
+            throw new IllegalArgumentException("side must be : north - south");
+        }
+
         totalLogs = 0;
     }
 
@@ -43,4 +57,5 @@ public class City extends Entity {
             + "; totalLogs : " + totalLogs
         + "]";
     }
+
 }

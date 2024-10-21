@@ -3,10 +3,9 @@ import java.util.Random;
 public class Tree extends Entity{
     private int log;
 
-
     public Tree(int x, int y)
     {
-        super(x, y, "neutral");
+        super(x, y, "neutral", "assets/special/tree.png");
         this.log = new Random().nextInt(101);
     }
 
@@ -25,4 +24,6 @@ public class Tree extends Entity{
     {
         return super.toString() + "; log : " + log + "]";
     }
+
+
 }
