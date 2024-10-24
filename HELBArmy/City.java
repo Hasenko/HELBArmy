@@ -1,49 +1,40 @@
 public class City extends Entity {
     private int totalLogs;
-    private final String[] IMAGE_PATHS = {"assets/city/north_city.png", "assets/city/south_city.png"};
 
-    public City(int x, int y, String side)
+    public City(int x, int y, String side, HELBArmy gameBoard)
     {
-        super(x, y, side, 5);
-        if (side.equals("north"))
-        {
-            setImagePath(IMAGE_PATHS[0]);
-        }
-        else if (side.equals("south"))
-        {
-            setImagePath(IMAGE_PATHS[1]);
-        }
-        else
-        {
-            throw new IllegalArgumentException("side must be : north - south");
-        }
+        super(x, y, side, 5, "assets/city/" + side + "_city.png", gameBoard);
 
         totalLogs = 0;
     }
 
     public void generateUnity()
     {
-
+        gameBoard.entityList.add(new Collector(getUnityExitX(), getUnityExitY(), this.getSide(), gameBoard));
     }
 
     public int getUnityExitX()
     {
-        return super.getX() + 2;
+        return this.x + this.getWidth() / 2;
     }
 
     public int getUnityExitY()
     {
-        return super.getY();
+        if (getSide().equals("north"))
+            return this.y + this.getWidth();
+        return this.y - 1;
     }
 
     public int getLogsDepositX()
     {
-        return super.getX();
+        if (getSide().equals("north"))
+            return this.x + this.getWidth();
+        return this.x - 1;
     }
 
     public int getLogsDepositY()
     {
-        return super.getY() + 2;
+        return this.y + this.getWidth() / 2;
     }
 
     @Override

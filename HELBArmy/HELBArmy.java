@@ -9,23 +9,30 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Random;
+
 // Controler
 public class HELBArmy {
-    View view;
-    private static final int CITY_NUMBERS = 2; /* */
-    private static final int TREE_NUMBERS = 283; /* */
-    private static final int PROTECTED_SPACE_BEYOND_CITY = 2; /* */
+    private final int CITY_DEFAULT_WIDTH = 5;
+    private final int CITY_NUMBERS = 2;
+    private final int TREE_NUMBERS = new Random().nextInt(19) + 2; // 2 - 20 both include
+
+    private final int PROTECTED_SPACE_BEYOND_CITY = 2;
     
-    private ArrayList<Entity> entityList = new ArrayList<>(); /* */
+    public ArrayList<Entity> entityList = new ArrayList<>(); // ArrayList to store entity
 
-    private City[] citiesList = new City[CITY_NUMBERS]; /* */
-    private Tree[] treesList = new Tree[TREE_NUMBERS]; /* */
+    public City[] citiesList = new City[CITY_NUMBERS]; // Array to store city
+    public Tree[] treesList = new Tree[TREE_NUMBERS]; // Array to store tree
 
-    private GraphicsContext gc; /* */
+    private View view = new View();
+    private GraphicsContext gc;
 
+    /*
+        Constructor
+        > Setup base of the window 
+        > Generate city and tree
+    */
     public HELBArmy(Stage primaryStage) {
-        view = new View();
-
         primaryStage.setTitle("HELBArmy");
         Group root = new Group();
         Canvas canvas = new Canvas(view.WIDTH, view.HEIGHT);
@@ -36,60 +43,69 @@ public class HELBArmy {
         gc = canvas.getGraphicsContext2D();
 
 
-        generateCity(); /* */
-        generateTree(); /* */
+        generateCity();
+        generateTree();
 
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run(gc))); /* */
-        timeline.setCycleCount(Animation.INDEFINITE); /* */
-        timeline.play(); /* */
+        for (City city : citiesList) {
+            city.generateUnity();
+        }
+
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run(gc)));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
     }
 
 
+    /*
+        Call view to draw element on window
+    */
     private void run(GraphicsContext gc)
     {
-        view.drawBackground(gc); //
-        view.drawEntity(gc, entityList); //
+        view.drawBackground(gc);
+        view.drawEntity(gc, entityList);
     }
 
-
-    private void generateCity() /* */
+    /*
+        Add content of array to the entity list
+    */
+    private void addEntity(Entity[] list)
     {
-        citiesList[0] = new City(view.ROWS / 2 - 2, 0, "north");
-        citiesList[1] = new City(view.ROWS / 2 - 2, view.COLUMNS - 5, "south");
-
-        addEntity(citiesList);
-    }
-
-    private void addEntity(Entity[] list) { /* */
-        for (Entity entity : list) {
+        for (Entity entity : list)
+        {
             entityList.add(entity);
         }
     }
 
-    private boolean isInCity(int x, int y) /* */
+    /*
+        Return true if the given coordinate (x; y) is the position of a city (north or south) or 2 squares around the city
+    */
+    private boolean isInCity(int x, int y)
     {
-        /*
-         * (10; 1)
-         * 
-         * north city : (8; 0) - (9; 0) - (10; 0) - (11; 0) - (12; 0)
-         *              (8; 1) - (9; 1) - (10; 1) - (11; 1) - (12; 1)
-         *              (8; 2) - (9; 2) - (10; 2) - (11; 2) - (12; 2)
-         *              (8; 3) - (9; 3) - (10; 3) - (11; 3) - (12; 3)
-         *              (8; 4) - (9; 4) - (10; 4) - (11; 4) - (12; 4)
-         * 
-         * south city : (8; 15) - (9; 15) - (10; 15) - (11; 15) - (12; 15)
-         *              (8; 16) - (9; 16) - (10; 16) - (11; 16) - (12; 16)
-         *              (8; 17) - (9; 17) - (10; 17) - (11; 17) - (12; 17)
-         *              (8; 18) - (9; 18) - (10; 18) - (11; 18) - (12; 18)
-         *              (8; 19) - (9; 19) - (10; 19) - (11; 19) - (12; 19)
-         */
-
-        return (x >= citiesList[0].getX() - PROTECTED_SPACE_BEYOND_CITY && x < citiesList[0].getX() + PROTECTED_SPACE_BEYOND_CITY + citiesList[0].WIDTH && y >= citiesList[0].getY() && y <= citiesList[0].getY() + citiesList[0].WIDTH)
-            || (x >= citiesList[1].getX() - PROTECTED_SPACE_BEYOND_CITY && x < citiesList[1].getX() + PROTECTED_SPACE_BEYOND_CITY + citiesList[1].WIDTH && y >= citiesList[1].getY() - PROTECTED_SPACE_BEYOND_CITY && y < citiesList[1].getY() + citiesList[1].WIDTH);
+        return (x >= citiesList[0].x - PROTECTED_SPACE_BEYOND_CITY && x < citiesList[0].x + PROTECTED_SPACE_BEYOND_CITY + citiesList[0].getWidth() && y >= citiesList[0].y && y <= citiesList[0].y + citiesList[0].getWidth() + 1)
+            || (x >= citiesList[1].x - PROTECTED_SPACE_BEYOND_CITY && x < citiesList[1].x + PROTECTED_SPACE_BEYOND_CITY + citiesList[1].getWidth() && y >= citiesList[1].y - PROTECTED_SPACE_BEYOND_CITY && y < citiesList[1].y + citiesList[1].getWidth());
 
     }
 
-    private void generateTree() /* */
+    /*
+        Generate City and add them on the entity list
+        > North City : top - center
+        > South City : bottom - center
+    */
+    private void generateCity() 
+    {
+        citiesList[0] = new City(view.ROWS / 2 - CITY_DEFAULT_WIDTH / 2, 0, "north", this);
+        citiesList[1] = new City(view.ROWS / 2 - CITY_DEFAULT_WIDTH / 2, view.COLUMNS - CITY_DEFAULT_WIDTH, "south", this);
+
+        System.out.println("north city : " + citiesList[0]);
+        System.out.println("south city : " + citiesList[1]);
+        addEntity(citiesList);
+    }
+
+    /*
+        Generate Tree and add them on the entity list
+        > All position are differents
+    */
+    private void generateTree() 
     {
         int x, y;
         for (int i = 0; i < TREE_NUMBERS; i++) {
@@ -108,7 +124,7 @@ public class HELBArmy {
                 boolean canContinue = true;
 
                 for (int j = 0; j < i; j++) {
-                    if((treesList[j].getX() == x && treesList[j].getY() == y))
+                    if((treesList[j].x == x && treesList[j].y == y))
                     {
                         canContinue = false;
                         System.out.println("Random detected ! " + i + " on " + j);
@@ -127,7 +143,7 @@ public class HELBArmy {
 
             }
             
-            treesList[i] = new Tree(x, y);
+            treesList[i] = new Tree(x, y, this);
         }
         
         addEntity(treesList);

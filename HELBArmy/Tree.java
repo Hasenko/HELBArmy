@@ -3,13 +3,13 @@ import java.util.Random;
 public class Tree extends Entity{
     private int log;
 
-    public Tree(int x, int y)
+    public Tree(int x, int y, HELBArmy gameBoard)
     {
-        super(x, y, "neutral", "assets/special/tree.png");
+        super(x, y, "assets/special/tree.png", gameBoard);
         this.log = new Random().nextInt(101);
     }
 
-    public void retrieveLog(int nb)
+    public void decreaseLog(int nb)
     {
         log -= nb;
     }

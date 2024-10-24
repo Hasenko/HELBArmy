@@ -1,42 +1,41 @@
 public abstract class Entity {
     private final static int DEFAULT_WIDTH = 1;
-    public final int WIDTH;
 
-    private int x;
-    private int y;
-    private String side;
-    private String imagePath;
-        
-    public Entity(int x, int y, String side)
-    {
-        this(x, y, side, "assets/");
-    }
+    protected int x;
+    protected int y;
     
-    public Entity(int x, int y, String side, String imagePath)
+    private String side;
+    private int width;
+    private String imagePath;
+
+    public HELBArmy gameBoard;
+    
+    public Entity(int x, int y, String imagePath, HELBArmy gameBoard)
+    {
+        this(x, y, "neutral", DEFAULT_WIDTH, imagePath, gameBoard);
+    }
+
+    public Entity(int x, int y, String side, String imagePath, HELBArmy gameBoard)
+    {
+        this(x, y, side, DEFAULT_WIDTH, imagePath, gameBoard);
+    }
+
+    public Entity(int x, int y, String side, int width, String imagePath, HELBArmy gameBoard)
     {
         this.x = x;
         this.y = y;
-        this.side = side;
-        setImagePath(imagePath);
-        WIDTH = DEFAULT_WIDTH;
+        setSide(side);
+        this.width = width;
+        this.imagePath = imagePath;
+        this.gameBoard = gameBoard;
     }
 
-    public Entity(int x, int y, String side, int width)
+    private void setSide(String side)
     {
-        this.x = x;
-        this.y = y;
-        this.side = side;
-        WIDTH = width;
-    }
-
-    public int getX()
-    {
-        return x;
-    }
-
-    public int getY()
-    {
-        return y;
+        if (side.equals("north") || side.equals("south") || side.equals("neutral"))
+            this.side = side;
+        else
+            throw new IllegalArgumentException("side must be : north - south - neutral");
     }
 
     public String getSide()
@@ -44,10 +43,9 @@ public abstract class Entity {
         return side;
     }
 
-    @Override
-    public String toString()
+    public int getWidth()
     {
-        return "[x : " + x + "; y : " + y;
+        return width;
     }
 
     public String getImagePath()
@@ -62,5 +60,11 @@ public abstract class Entity {
             throw new IllegalArgumentException(imagePath + " | Base directory must be : assets/");
         }
         this.imagePath = imagePath;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "[x : " + x + "; y : " + y;
     }
 }
