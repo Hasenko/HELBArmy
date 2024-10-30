@@ -9,19 +9,24 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 // Controler
 public class HELBArmy {
     private final int CITY_DEFAULT_WIDTH = 5;
-    private final int CITY_NUMBERS = 2;
-    private final int TREE_NUMBERS = new Random().nextInt(19) + 2; // 2 - 20 both include
+
+    // private final int TREE_NUMBERS = new Random().nextInt(19) + 2; // 2 - 20 both include
+    private final int TREE_NUMBERS = 1;
+    // private final int TREE_NUMBERS = 100;
 
     private final int PROTECTED_SPACE_BEYOND_CITY = 2;
     
     public ArrayList<Entity> entityList = new ArrayList<>(); // ArrayList to store entity
+    public ArrayList<MovableEntity> unityList = new ArrayList<>();
 
-    public City[] citiesList = new City[CITY_NUMBERS]; // Array to store city
+    public HashMap<String, City> citiesMap = new HashMap<>(); // HashMap to store city
     public Tree[] treesList = new Tree[TREE_NUMBERS]; // Array to store tree
 
     private View view = new View();
@@ -46,11 +51,13 @@ public class HELBArmy {
         generateCity();
         generateTree();
 
-        for (City city : citiesList) {
-            city.generateUnity();
+        
+        for (Map.Entry<String, City> entry : citiesMap.entrySet())
+        {
+            entry.getValue().generateUnity(); // Edit to give timestamp parameter and call than on run
         }
-
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(130), e -> run(gc)));
+                
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(100), e -> run(gc)));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
@@ -63,27 +70,24 @@ public class HELBArmy {
     {
         view.drawBackground(gc);
         view.drawEntity(gc, entityList);
-    }
 
-    /*
-        Add content of array to the entity list
-    */
-    private void addEntity(Entity[] list)
-    {
-        for (Entity entity : list)
-        {
-            entityList.add(entity);
+        for (MovableEntity unity : unityList) {
+            unity.play();
         }
     }
 
-    /*
-        Return true if the given coordinate (x; y) is the position of a city (north or south) or 2 squares around the city
-    */
-    private boolean isInCity(int x, int y)
-    {
-        return (x >= citiesList[0].x - PROTECTED_SPACE_BEYOND_CITY && x < citiesList[0].x + PROTECTED_SPACE_BEYOND_CITY + citiesList[0].getWidth() && y >= citiesList[0].y && y <= citiesList[0].y + citiesList[0].getWidth() + 1)
-            || (x >= citiesList[1].x - PROTECTED_SPACE_BEYOND_CITY && x < citiesList[1].x + PROTECTED_SPACE_BEYOND_CITY + citiesList[1].getWidth() && y >= citiesList[1].y - PROTECTED_SPACE_BEYOND_CITY && y < citiesList[1].y + citiesList[1].getWidth());
+    // ECAMPUS
+    public boolean isPositionInBoard(Position pos){
+        return(pos.x >= 0 && pos.y >= 0 && pos.x < view.COLUMNS && pos.y < view.ROWS); 
+    }
 
+    /*
+        Return true if the given coordinate (x; y) is the position of a city (north or south) or 'potectedSpace' squares around the city
+    */
+    public boolean isInCity(Position pos, int potectedSpace)
+    {
+        return (pos.x >= citiesMap.get("north").position.x - potectedSpace && pos.x < citiesMap.get("north").position.x + potectedSpace + citiesMap.get("north").getWidth() && pos.y >= citiesMap.get("north").position.y && pos.y <= citiesMap.get("north").position.y + citiesMap.get("north").getWidth() + 1)
+            || (pos.x >= citiesMap.get("south").position.x - potectedSpace && pos.x < citiesMap.get("south").position.x + potectedSpace + citiesMap.get("south").getWidth() && pos.y >= citiesMap.get("south").position.y - potectedSpace && pos.y < citiesMap.get("south").position.y + citiesMap.get("south").getWidth());
     }
 
     /*
@@ -93,12 +97,14 @@ public class HELBArmy {
     */
     private void generateCity() 
     {
-        citiesList[0] = new City(view.ROWS / 2 - CITY_DEFAULT_WIDTH / 2, 0, "north", this);
-        citiesList[1] = new City(view.ROWS / 2 - CITY_DEFAULT_WIDTH / 2, view.COLUMNS - CITY_DEFAULT_WIDTH, "south", this);
+        City northCity = new City(new Position(view.ROWS / 2 - CITY_DEFAULT_WIDTH / 2, 0), "north", this);
+        City southCity = new City(new Position(view.ROWS / 2 - CITY_DEFAULT_WIDTH / 2, view.COLUMNS - CITY_DEFAULT_WIDTH), "south", this);
 
-        System.out.println("north city : " + citiesList[0]);
-        System.out.println("south city : " + citiesList[1]);
-        addEntity(citiesList);
+        citiesMap.put("north", northCity);
+        citiesMap.put("south", southCity);
+
+        entityList.add(northCity);
+        entityList.add(southCity);
     }
 
     /*
@@ -107,29 +113,26 @@ public class HELBArmy {
     */
     private void generateTree() 
     {
-        int x, y;
+        Position pos;
         for (int i = 0; i < TREE_NUMBERS; i++) {
             while(true)
             {
-                x = (int) (Math.random() * view.ROWS);
-                y = (int) (Math.random() * view.COLUMNS);
+                pos = new Position((int) (Math.random() * view.ROWS), (int) (Math.random() * view.COLUMNS));
 
-                while (isInCity(x, y))
+                while (isInCity(pos, PROTECTED_SPACE_BEYOND_CITY))
                 {
-                    x = (int) (Math.random() * view.ROWS);
-                    y = (int) (Math.random() * view.COLUMNS);
+                    pos = new Position((int) (Math.random() * view.ROWS), (int) (Math.random() * view.COLUMNS));
                 }
 
 
                 boolean canContinue = true;
 
                 for (int j = 0; j < i; j++) {
-                    if((treesList[j].x == x && treesList[j].y == y))
+                    if((treesList[j].position.equals(pos)))
                     {
                         canContinue = false;
                         System.out.println("Random detected ! " + i + " on " + j);
-                        System.out.println("x : " + x);
-                        System.out.println("y : " + y);
+                        System.out.println(pos);
                         System.out.println("-----------------------");
                         System.out.println(treesList[j]);
                         System.out.println();
@@ -143,9 +146,9 @@ public class HELBArmy {
 
             }
             
-            treesList[i] = new Tree(x, y, this);
+            treesList[i] = new Tree(pos, this);
+            entityList.add(treesList[i]);
         }
-        
-        addEntity(treesList);
     }
+
 }

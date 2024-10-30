@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public abstract class MovableEntity extends Entity {
     /*
         Collecteur PV 50 Attaque 5
@@ -10,41 +13,96 @@ public abstract class MovableEntity extends Entity {
     private int damage;
     private int attackMultiplicator;
 
-    public MovableEntity(int x, int y, String side, String imagePath, HELBArmy gameBoard, int hp, int damage)
+    public MovableEntity(Position position, String side, String imagePath, HELBArmy gameBoard, int hp, int damage)
     {
-        this(x, y, side, imagePath, gameBoard, hp, damage, 1);
+        this(position, side, imagePath, gameBoard, hp, damage, 1);
     }
 
-    public MovableEntity(int x, int y, String side, String imagePath, HELBArmy gameBoard, int hp, int damage, int attackMultiplicator)
+    public MovableEntity(Position position, String side, String imagePath, HELBArmy gameBoard, int hp, int damage, int attackMultiplicator)
     {
-        super(x, y, side, imagePath, gameBoard);
+        super(position, side, imagePath, gameBoard);
         this.hp = hp;
         this.damage = damage;
         this.attackMultiplicator = attackMultiplicator;
     }
-
-    protected void moveRight()
+    
+    public int getHp()
     {
-        this.x++;
+        return hp;
     }
 
-    protected void moveLeft()
+    public int getDamage()
     {
-        this.x--;
+        return damage;
     }
 
-    protected void moveUp()
+    public int getAttackMultiplicator()
     {
-        this.y--;
+        return attackMultiplicator;
     }
 
-    protected void moveDown()
+    public void decreaseHp(int nb)
     {
-        this.y++;
+        hp -= nb;
+
+        if (hp <= 0)
+        {
+            destroy();
+        }
     }
 
-    protected void hit(Entity entity)
+    private void destroy() {
+        gameBoard.entityList.remove(this);
+        gameBoard.unityList.remove(this);
+    }
+
+    protected void goToPosition(Position posTarget)
     {
-        System.out.println("Hitting : " + entity);
+        this.position = getNextPositionForTarget(posTarget);
+    }
+
+    protected void goToEntity(Entity entity)
+    {
+        goToPosition(entity.position);
+    }
+
+    public Position getNextPositionForTarget(Position pos)
+    {
+        HashMap<Double, Position> positionDistanceMap = new HashMap<>();
+        ArrayList<Position> positions = getAccessibleAdjacentPositions();
+
+        if (positions.size() > 0)
+        {
+            double minDistance = getDistance(pos, positions.get(0));
+
+            for (Position possiblePosition : positions) {
+                double currentDistance = getDistance(pos, possiblePosition);
+                if (currentDistance < minDistance)
+                {
+                    minDistance = currentDistance;
+                }
+    
+                positionDistanceMap.put(currentDistance, possiblePosition);
+            }
+
+            return positionDistanceMap.get(minDistance);
+
+        }
+
+        System.out.println("no position available");
+        return this.position;
+    }
+
+    /*
+        method to perform action of a movable entity (specific for every mv entity)
+    */
+    protected abstract void play();
+
+    /*
+        method to hit an unity
+    */
+    protected void hit(MovableEntity unity)
+    {
+        unity.decreaseHp(damage);
     }
 }

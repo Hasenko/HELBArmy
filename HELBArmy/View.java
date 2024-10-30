@@ -34,7 +34,26 @@ public class View {
     public void drawEntity(GraphicsContext gc, ArrayList<Entity> entityList)
     {
         for (Entity entity : entityList) {
-            gc.drawImage(new Image(entity.getImagePath()), entity.x * SQUARE_SIZE, entity.y * SQUARE_SIZE, SQUARE_SIZE * entity.getWidth(), SQUARE_SIZE * entity.getWidth());
+            gc.drawImage(new Image(entity.getImagePath()), entity.position.x * SQUARE_SIZE, entity.position.y * SQUARE_SIZE, SQUARE_SIZE * entity.getWidth(), SQUARE_SIZE * entity.getWidth());
+            
+            // if (entity instanceof Collector)
+            // {
+            //     for (Position position : entity.getAccessibleAdjacentPositions())
+            //     {
+            //         gc.setFill(Color.web("FFFFFF"));
+            //         gc.fillRoundRect(position.x * SQUARE_SIZE, position.y * SQUARE_SIZE, SQUARE_SIZE - 1, SQUARE_SIZE - 1, 35, 35);
+            //     }
+            // }
+
+            if (entity instanceof Tree)
+            {
+                for (Position position : entity.getAccessibleAdjacentPositions())
+                {
+                    gc.setFill(Color.web("FF0000"));
+                    gc.fillRoundRect(position.x * SQUARE_SIZE, position.y * SQUARE_SIZE, SQUARE_SIZE - 1, SQUARE_SIZE - 1, 35, 35);
+                }
+            }
+
         }
     }
 }

@@ -1,41 +1,63 @@
 public class Collector extends MovableEntity {
-    private int currentLog;
-
-    public Collector(int x, int y, String side, HELBArmy gameBoard) {
-        super(x, y, side, "assets/unity/" + side + "_collector.png", gameBoard, 50, 5);
-        goToNearestTree();
-    }
+    private final int MAX_LOG = 25;
+    private final int DAMAGE_TO_TREE = 1;
     
-    public void goToNearestTree()
-    {
-        // √((x_2-x_1)²+(y_2-y_1)²)
+    private int currentLog;
+    private Position logDepositPosition;
 
-        double[] distancesFromTreesAndThisCollector = new double[gameBoard.treesList.length];
-        
-        for (int i = 0; i < gameBoard.treesList.length; i++) {
-            distancesFromTreesAndThisCollector[i] = Math.sqrt((Math.pow(gameBoard.treesList[i].x - this.x, 2) + (Math.pow(gameBoard.treesList[i].y - this.y, 2))));
-        }
-
-        System.out.println("------------------------");
-
-        for (int i = 0; i < gameBoard.treesList.length; i++) {
-            System.out.println("Tree : " + gameBoard.treesList[i] + " | Distance from " + getSide() +" collector : " + distancesFromTreesAndThisCollector[i]);
-        }
-
-    }
-
-    public void goToLogDeposite()
-    {
-
-    }
-
-    public void dropLogInDeposite()
-    {
-
+    public Collector(Position position, String side, HELBArmy gameBoard) {
+        super(position, side, "assets/unity/" + side + "_collector.png", gameBoard, 50, 5);
+        this.currentLog = 0;
+        this.logDepositPosition = new Position(gameBoard.citiesMap.get(getSide()).getLogsDepositX(), gameBoard.citiesMap.get(getSide()).getLogsDepositY());
     }
 
     @Override
-    protected void hit(Entity entity) {
-        super.hit(entity);
+    protected void play()
+    {
+        if (currentLog == MAX_LOG) // collector is full
+        {
+            if (!isInPosition(this.logDepositPosition))
+            {
+                goToPosition(this.logDepositPosition);
+            }
+            else
+            {
+                dropLogInLogDeposit();
+            }
+        }
+        else // collector is not full
+        {
+            Tree nearestTree = getNearestTree();
+
+            if (nearestTree == null) // no tree available to go
+            {
+                System.out.println(getSide() + " collector : no tree available");
+                return;
+            }
+
+            if (!isCloseToEntity(nearestTree)) // collector is not in a position to hit the tree
+            {
+                goToEntity(nearestTree); // got to a position to hit the tree
+            }
+            else
+            {
+                cutTree(nearestTree);
+            }
+
+        }
+
+    }
+
+    private void cutTree(Tree tree)
+    {
+        System.out.println(getSide() + " collector : cutting : " + tree);
+        currentLog += tree.decreaseLog(DAMAGE_TO_TREE);
+    }
+
+    private void dropLogInLogDeposit()
+    {
+        System.out.println(getSide() + " collector : dropping logs ...");
+        gameBoard.citiesMap.get(getSide()).dropLogs(currentLog);
+        currentLog = 0;
     }
 }
