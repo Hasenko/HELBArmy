@@ -8,7 +8,7 @@ public class Collector extends MovableEntity {
     public Collector(Position position, String side, HELBArmy gameBoard) {
         super(position, side, "assets/unity/" + side + "_collector.png", gameBoard, 50, 5);
         this.currentLog = 0;
-        this.logDepositPosition = new Position(gameBoard.citiesMap.get(getSide()).getLogsDepositX(), gameBoard.citiesMap.get(getSide()).getLogsDepositY());
+        this.logDepositPosition = new Position(getCity().getLogsDepositX(), getCity().getLogsDepositY());
     }
 
     @Override
@@ -31,7 +31,6 @@ public class Collector extends MovableEntity {
 
             if (nearestTree == null) // no tree available to go
             {
-                System.out.println(getSide() + " collector : no tree available");
                 return;
             }
 
@@ -50,14 +49,12 @@ public class Collector extends MovableEntity {
 
     private void cutTree(Tree tree)
     {
-        System.out.println(getSide() + " collector : cutting : " + tree);
         currentLog += tree.decreaseLog(DAMAGE_TO_TREE);
     }
 
     private void dropLogInLogDeposit()
     {
-        System.out.println(getSide() + " collector : dropping logs ...");
-        gameBoard.citiesMap.get(getSide()).dropLogs(currentLog);
+        this.getCity().dropLogs(currentLog);
         currentLog = 0;
     }
 }

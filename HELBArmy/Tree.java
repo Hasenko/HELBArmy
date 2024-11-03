@@ -1,14 +1,20 @@
+import java.util.Date;
 import java.util.Random;
 
 public class Tree extends Entity{
     private final int DEFAULT_LOG;
+    // private final int DEFAULT_RESPAWN_TIME = 30000;
+    private final int DEFAULT_RESPAWN_TIME = 5000;
+
     private int log;
     public boolean exist;
+    public long respawnTime = 0;
 
     public Tree(Position position, HELBArmy gameBoard)
     {
         super(position, "assets/special/tree.png", gameBoard);
         this.log = new Random().nextInt(101);
+        // this.log = 100;
         this.DEFAULT_LOG = log;
         exist = true;
     }
@@ -31,6 +37,7 @@ public class Tree extends Entity{
             log = 0;
             exist = false;
             this.gameBoard.entityList.remove(this);
+            respawnTime = new Date().getTime() + DEFAULT_RESPAWN_TIME;
         }
         return baseLog - log;
     }

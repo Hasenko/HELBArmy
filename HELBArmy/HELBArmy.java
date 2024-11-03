@@ -9,6 +9,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -17,8 +18,8 @@ import java.util.Random;
 public class HELBArmy {
     private final int CITY_DEFAULT_WIDTH = 5;
 
-    // private final int TREE_NUMBERS = new Random().nextInt(19) + 2; // 2 - 20 both include
-    private final int TREE_NUMBERS = 1;
+    private final int TREE_NUMBERS = new Random().nextInt(19) + 2; // 2 - 20 both include
+    // private final int TREE_NUMBERS = 1;
     // private final int TREE_NUMBERS = 100;
 
     private final int PROTECTED_SPACE_BEYOND_CITY = 2;
@@ -31,6 +32,8 @@ public class HELBArmy {
 
     private View view = new View();
     private GraphicsContext gc;
+
+    private long currentTime = 0;
 
     /*
         Constructor
@@ -50,14 +53,8 @@ public class HELBArmy {
 
         generateCity();
         generateTree();
-
-        
-        for (Map.Entry<String, City> entry : citiesMap.entrySet())
-        {
-            entry.getValue().generateUnity(); // Edit to give timestamp parameter and call than on run
-        }
                 
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(100), e -> run(gc)));
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(10), e -> run(gc)));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
     }
@@ -68,11 +65,28 @@ public class HELBArmy {
     */
     private void run(GraphicsContext gc)
     {
+        currentTime = new Date().getTime();
         view.drawBackground(gc);
         view.drawEntity(gc, entityList);
 
         for (MovableEntity unity : unityList) {
             unity.play();
+        }
+
+        for (Map.Entry<String, City> entry : citiesMap.entrySet())
+        {
+            entry.getValue().generateUnity(currentTime); // Edit to give timestamp parameter and call than on run
+        }
+
+        for (Tree tree : treesList) {
+            if (!tree.exist)
+            {
+                if (currentTime >= tree.respawnTime)
+                {
+                    tree.revive();
+                    entityList.add(tree);
+                }
+            }
         }
     }
 

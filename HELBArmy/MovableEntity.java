@@ -12,6 +12,7 @@ public abstract class MovableEntity extends Entity {
     private int hp;
     private int damage;
     private int attackMultiplicator;
+    private City city;
 
     public MovableEntity(Position position, String side, String imagePath, HELBArmy gameBoard, int hp, int damage)
     {
@@ -24,6 +25,7 @@ public abstract class MovableEntity extends Entity {
         this.hp = hp;
         this.damage = damage;
         this.attackMultiplicator = attackMultiplicator;
+        this.city = gameBoard.citiesMap.get(side);
     }
     
     public int getHp()
@@ -49,6 +51,11 @@ public abstract class MovableEntity extends Entity {
         {
             destroy();
         }
+    }
+
+    public City getCity()
+    {
+        return city;
     }
 
     private void destroy() {
