@@ -8,6 +8,10 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,7 +22,8 @@ import java.util.Random;
 public class HELBArmy {
     private final int CITY_DEFAULT_WIDTH = 5;
 
-    private final int TREE_NUMBERS = new Random().nextInt(19) + 2; // 2 - 20 both include
+    private final int TREE_NUMBERS = new Random().nextInt(100) + 10;
+    // private final int TREE_NUMBERS = new Random().nextInt(19) + 2; // 2 - 20 both include
     // private final int TREE_NUMBERS = 1;
     // private final int TREE_NUMBERS = 100;
 
@@ -26,6 +31,7 @@ public class HELBArmy {
     
     public ArrayList<Entity> entityList = new ArrayList<>(); // ArrayList to store entity
     public ArrayList<MovableEntity> unityList = new ArrayList<>();
+    private ArrayList<Entity> unityToDestroy = new ArrayList<>(); // ArrayList to store unity to destroy after next iteration
 
     public HashMap<String, City> citiesMap = new HashMap<>(); // HashMap to store city
     public Tree[] treesList = new Tree[TREE_NUMBERS]; // Array to store tree
@@ -50,15 +56,15 @@ public class HELBArmy {
         primaryStage.show();
         gc = canvas.getGraphicsContext2D();
 
-
         generateCity();
         generateTree();
                 
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(10), e -> run(gc)));
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(250), e -> run(gc)));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
-    }
 
+        setKeyEvent(scene);
+    }
 
     /*
         Call view to draw element on window
@@ -76,6 +82,11 @@ public class HELBArmy {
         for (Map.Entry<String, City> entry : citiesMap.entrySet())
         {
             entry.getValue().generateUnity(currentTime); // Edit to give timestamp parameter and call than on run
+        }
+
+        for (Entity entity : unityToDestroy) {
+            this.entityList.remove(entity);
+            this.unityList.remove(entity);
         }
 
         for (Tree tree : treesList) {
@@ -165,4 +176,86 @@ public class HELBArmy {
         }
     }
 
+
+    public void removeNext(Entity entity) {
+        this.unityToDestroy.add(entity);
+    }
+
+    private void setKeyEvent(Scene scene)
+    {
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+           @Override
+           public void handle(KeyEvent event)
+           {
+                KeyCode code = event.getCode();
+                if (code == KeyCode.A)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.Z)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.E)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.R)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.W)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.X)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.C)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.V)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.J)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.K)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.L)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.M)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.U)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.I)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.O)
+                {
+                    System.out.println("Still under developpement");
+                }
+                else if (code == KeyCode.P)
+                {
+                    System.out.println("Still under developpement");
+                }
+
+            }
+               
+        });
+   }
+    
 }
