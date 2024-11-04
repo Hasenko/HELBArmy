@@ -137,42 +137,53 @@ public abstract class Entity {
         return this.position.equals(position);
     }
 
-    public Entity getNearestEntity()
+    private Entity getNearestEntity(ArrayList<Entity> entityList)
     {
-        return null;
+        if (entityList.size() == 0) return null;
+
+        Entity nearestEntity = entityList.get(0);
+        double minDistance = nearestEntity.getDistance(nearestEntity.position, this.position);
+
+        for (Entity entity : entityList)
+        {
+            double currentDistance = getDistance(entity.position, this.position);
+
+            if (currentDistance <= minDistance)
+            {
+                minDistance = currentDistance;
+                nearestEntity = entity;
+            }
+        }
+        return nearestEntity;
     }
 
-    public Collector getNearestCollector()
+    public Collector getNearestEnemyCollector()
     {
-        return null;
+        ArrayList<Entity> availableCollector = new ArrayList<>();
+
+        for (MovableEntity unity : gameBoard.unityList)
+        {
+            if (unity instanceof Collector)
+            {
+                if (!unity.getSide().equals(this.side))
+                {
+                    availableCollector.add(unity);
+                }
+            }
+        }
+        
+        return (Collector) getNearestEntity(availableCollector);
     }
 
     public Tree getNearestTree()
     {
-        ArrayList<Tree> availableTree = new ArrayList<>();
+        ArrayList<Entity> availableTree = new ArrayList<>();
 
         for (Tree tree : gameBoard.treesList) {
             if(tree.exist && tree.getAccessibleAdjacentPositions().size() > 0) availableTree.add(tree);
         }
 
-        if (availableTree.size() == 0) return null;
-
-        Tree nearestTree = availableTree.get(0);
-        double minDistance = nearestTree.getDistance(nearestTree.position, this.position);
-
-        for (Tree tree : availableTree)
-        {
-            double currentDistance = getDistance(tree.position, this.position);
-
-            if (currentDistance <= minDistance)
-            {
-                minDistance = currentDistance;
-                nearestTree = tree;
-            }
-
-        }
-
-        return nearestTree;
+        return (Tree) getNearestEntity(availableTree);
     }
     @Override
     public String toString()
