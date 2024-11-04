@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class View {
     public final int WIDTH = 800;
     public final int HEIGHT = WIDTH;
-    public final int ROWS = 20;
+    public final int ROWS = 50;
     public final int COLUMNS = ROWS;
     public final int SQUARE_SIZE = WIDTH / ROWS;
 
@@ -45,6 +45,8 @@ public class View {
             //     }
             // }
 
+            /*
+            // SHOW TREE ACCESSIBLE POSITION
             if (entity instanceof Tree)
             {
                 for (Position position : entity.getAccessibleAdjacentPositions())
@@ -53,6 +55,7 @@ public class View {
                     gc.fillRoundRect(position.x * SQUARE_SIZE, position.y * SQUARE_SIZE, SQUARE_SIZE - 1, SQUARE_SIZE - 1, 35, 35);
                 }
             }
+            */
 
         }
     }
