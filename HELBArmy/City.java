@@ -1,7 +1,5 @@
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 public class City extends Entity {
@@ -61,8 +59,39 @@ public class City extends Entity {
         }
         else
         {
-            System.out.println("Can't generate units now | current time : " + currentTime + " | nex generator update : " + nextGeneratorUpdate);
+            // System.out.println("Can't generate units now | current time : " + currentTime + " | nex generator update : " + nextGeneratorUpdate);
         }
+    }
+
+    private void generateCollector()
+    {
+        System.out.println("---------------------");
+        System.out.println("Generating Collector !");
+        System.out.println("---------------------");
+
+        newUnits = new Collector(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
+    }
+
+    private void generateDeserter()
+    {
+        System.out.println("---------------------");
+        System.out.println("Generating Deserter !");
+        System.out.println("---------------------");
+        newUnits = new Deserter(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
+    }
+
+    private void generateHorsemen()
+    {
+        System.out.println("---------------------");
+        System.out.println("Generating Horsemen !");
+        System.out.println("---------------------");
+    }
+    
+    private void generatePikemen()
+    {
+        System.out.println("---------------------");
+        System.out.println("Generating Pikemen !");
+        System.out.println("---------------------");
     }
 
     public void choseUnitsToGenerate() {
@@ -89,37 +118,27 @@ public class City extends Entity {
                 3 -> Horsemen
         */
 
-        System.out.println(getSide() + " totalLog : " + totalLogs);
-        System.out.println(getSide() + " possibility : " + possibility);
-
         if (unitsIndex == 0)
         {
-            System.out.println("---------------------");
-            System.out.println("Generating Collector !");
-            System.out.println("---------------------");
-
-            newUnits = new Collector(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
+            generateCollector();
         }
         else if (unitsIndex == 1)
         {
-            System.out.println("---------------------");
-            System.out.println("Generating Deserter !");
-            System.out.println("---------------------");
+            generateDeserter();
         }
         else if (unitsIndex == 2)
         {
-            System.out.println("---------------------");
-            System.out.println("Generating Pikemen !");
-            System.out.println("---------------------");
+            generatePikemen();
         }
         else if (unitsIndex == 3)
         {
-            System.out.println("---------------------");
-            System.out.println("Generating Horsemen !");
-            System.out.println("---------------------");
+            generateHorsemen();
         }
 
         nextGeneratorUpdate = new Date().getTime() + UNITS_COSTS[unitsIndex][1];
+        totalLogs -= UNITS_COSTS[unitsIndex][0];
+
+        System.out.println("Total logs : " + totalLogs);
     }
 
     private void setPositions()
