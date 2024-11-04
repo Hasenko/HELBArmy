@@ -11,15 +11,15 @@ public abstract class MovableEntity extends Entity {
 
     private int hp;
     private int damage;
-    private int attackMultiplicator;
+    private double attackMultiplicator;
     private City city;
 
     public MovableEntity(Position position, String side, String imagePath, HELBArmy gameBoard, int hp, int damage)
     {
-        this(position, side, imagePath, gameBoard, hp, damage, 1);
+        this(position, side, imagePath, gameBoard, hp, damage, 1.0);
     }
 
-    public MovableEntity(Position position, String side, String imagePath, HELBArmy gameBoard, int hp, int damage, int attackMultiplicator)
+    public MovableEntity(Position position, String side, String imagePath, HELBArmy gameBoard, int hp, int damage, double attackMultiplicator)
     {
         super(position, side, imagePath, gameBoard);
         this.hp = hp;
@@ -38,7 +38,7 @@ public abstract class MovableEntity extends Entity {
         return damage;
     }
 
-    public int getAttackMultiplicator()
+    public double getAttackMultiplicator()
     {
         return attackMultiplicator;
     }
@@ -59,8 +59,8 @@ public abstract class MovableEntity extends Entity {
     }
 
     private void destroy() {
-        gameBoard.entityList.remove(this);
-        gameBoard.unityList.remove(this);
+        System.out.println("<--!" + this + " is dying !-->");
+        gameBoard.removeNext(this);
     }
 
     protected void goToPosition(Position posTarget)
