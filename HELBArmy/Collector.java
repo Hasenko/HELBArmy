@@ -14,37 +14,44 @@ public class Collector extends MovableEntity {
     @Override
     protected void play()
     {
-        if (currentLog == MAX_LOG) // collector is full
+        if (!isFighting())
         {
-            if (!isInPosition(this.logDepositPosition))
+            if (currentLog == MAX_LOG) // collector is full
             {
-                goToPosition(this.logDepositPosition);
+                if (!isInPosition(this.logDepositPosition))
+                {
+                    goToPosition(this.logDepositPosition);
+                }
+                else
+                {
+                    dropLogInLogDeposit();
+                }
             }
-            else
+            else // collector is not full
             {
-                dropLogInLogDeposit();
+                Tree nearestTree = getNearestTree();
+    
+                if (nearestTree == null) // no tree available to go
+                {
+                    return;
+                }
+    
+                if (!isCloseToEntity(nearestTree)) // collector is not in a position to hit the tree
+                {
+                    goToEntity(nearestTree); // got to a position to hit the tree
+                }
+                else
+                {
+                    cutTree(nearestTree);
+                }
+    
             }
         }
-        else // collector is not full
+        else
         {
-            Tree nearestTree = getNearestTree();
-
-            if (nearestTree == null) // no tree available to go
-            {
-                return;
-            }
-
-            if (!isCloseToEntity(nearestTree)) // collector is not in a position to hit the tree
-            {
-                goToEntity(nearestTree); // got to a position to hit the tree
-            }
-            else
-            {
-                cutTree(nearestTree);
-            }
-
+            System.out.println(this + " is fighting");
         }
-
+        
     }
 
     private void cutTree(Tree tree)
@@ -56,5 +63,10 @@ public class Collector extends MovableEntity {
     {
         this.getCity().dropLogs(currentLog);
         currentLog = 0;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + " | " + super.toString();
     }
 }

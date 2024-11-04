@@ -64,7 +64,7 @@ public abstract class Entity {
         get an array of accessible position for this
     */
     // ECAMPUS
-    private ArrayList<Position> getAdjacentPositions(){
+    protected ArrayList<Position> getAdjacentPositions(){
 
         ArrayList<Position> resultList = new ArrayList<Position>();
         

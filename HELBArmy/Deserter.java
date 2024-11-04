@@ -6,22 +6,32 @@ public class Deserter extends MovableEntity{
 
     @Override
     protected void play() {
-        Collector nearestEnemyCollector = getNearestEnemyCollector();
-
-        if (nearestEnemyCollector == null)
+        if (!isFighting())
         {
-            return;
-        }
+            Collector nearestEnemyCollector = getNearestEnemyCollector();
 
-        if (!isCloseToEntity(nearestEnemyCollector))
-        {
-            goToEntity(nearestEnemyCollector);
+            if (nearestEnemyCollector == null)
+            {
+                return;
+            }
+
+            if (!isCloseToEntity(nearestEnemyCollector))
+            {
+                goToEntity(nearestEnemyCollector);
+            }
+            else
+            {
+                hit(nearestEnemyCollector);
+            }
         }
         else
         {
-            System.out.println(this + " is in position to hit collector : " + nearestEnemyCollector);
-            hit(nearestEnemyCollector);
+            System.out.println(this + " is fighting");
         }
     }
     
+    @Override
+    public String toString() {
+        return getClass().getName() + " | " + super.toString();
+    }
 }

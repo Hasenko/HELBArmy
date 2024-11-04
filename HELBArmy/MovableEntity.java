@@ -100,6 +100,24 @@ public abstract class MovableEntity extends Entity {
         return this.position;
     }
 
+    private ArrayList<MovableEntity> getAdjacentEnemyUnity()
+    {
+        ArrayList<MovableEntity> adjacentEnemyUnity = new ArrayList<>();
+        ArrayList<Position> adjacentPositions = getAdjacentPositions();
+
+        for (MovableEntity unity : gameBoard.unityList) {
+            if (!unity.getSide().equals(this.getSide()))
+            {
+                if(adjacentPositions.contains(unity.position))
+                {
+                    adjacentEnemyUnity.add(unity);
+                }
+            }
+        }
+
+        return adjacentEnemyUnity;
+    }
+
     /*
         method to perform action of a movable entity (specific for every mv entity)
     */
@@ -111,5 +129,10 @@ public abstract class MovableEntity extends Entity {
     protected void hit(MovableEntity unity)
     {
         unity.decreaseHp(damage);
+    }
+
+    protected boolean isFighting()
+    {
+        return getAdjacentEnemyUnity().size() > 0;
     }
 }
