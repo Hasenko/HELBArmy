@@ -102,7 +102,7 @@ public class HELBArmy {
         for (Tree tree : treesList) {
             if (!tree.exist)
             {
-                if (currentTime >= tree.respawnTime)
+                if (currentTime >= tree.respawnTime && !tree.hasCollision())
                 {
                     tree.revive();
                     entityList.add(tree);

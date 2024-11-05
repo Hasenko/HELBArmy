@@ -65,5 +65,4 @@ public class Tree extends Entity {
         return super.toString() + "; log : " + log + "]";
     }
 
-
 }

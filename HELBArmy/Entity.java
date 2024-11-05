@@ -157,6 +157,20 @@ public abstract class Entity {
         return nearestEntity;
     }
 
+    public boolean hasCollision()
+    {
+        for (Entity entity : gameBoard.entityList) {
+            if (this.isInPosition(entity.position))
+            {
+                System.out.println("collision detected :");
+                System.out.println(this);
+                System.out.println(entity);
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public String toString()
     {
