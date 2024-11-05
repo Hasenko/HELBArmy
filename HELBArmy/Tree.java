@@ -1,10 +1,11 @@
 import java.util.Date;
 import java.util.Random;
 
-public class Tree extends Entity{
+public class Tree extends Entity {
+    private final int MAX_LOG = 100;
     private final int DEFAULT_LOG;
-    // private final int DEFAULT_RESPAWN_TIME = 30000;
-    private final int DEFAULT_RESPAWN_TIME = 5000;
+    private final int DEFAULT_RESPAWN_TIME = 30000;
+    // private final int DEFAULT_RESPAWN_TIME = 5000;
 
     private int log;
     public boolean exist;
@@ -13,7 +14,7 @@ public class Tree extends Entity{
     public Tree(Position position, HELBArmy gameBoard)
     {
         super(position, "assets/special/tree.png", gameBoard);
-        this.log = new Random().nextInt(101);
+        this.log = new Random().nextInt(MAX_LOG + 1);
         // this.log = 100;
         this.DEFAULT_LOG = log;
         exist = true;

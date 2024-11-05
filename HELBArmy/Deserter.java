@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Deserter extends MovableEntity{
 
     public Deserter(Position position, String side, HELBArmy gameBoard) {
@@ -28,6 +30,24 @@ public class Deserter extends MovableEntity{
         {
             System.out.println(this + " is fighting");
         }
+    }
+
+    private Collector getNearestEnemyCollector()
+    {
+        ArrayList<Entity> availableCollector = new ArrayList<>();
+
+        for (MovableEntity unity : gameBoard.unityList)
+        {
+            if (unity instanceof Collector)
+            {
+                if (!unity.getSide().equals(this.getSide()))
+                {
+                    availableCollector.add(unity);
+                }
+            }
+        }
+        
+        return (Collector) getNearestEntity(availableCollector);
     }
     
     @Override

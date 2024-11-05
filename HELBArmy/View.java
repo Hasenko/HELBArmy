@@ -5,25 +5,27 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 
 public class View {
+    private final HELBArmy CONTROLER;
     public final int WIDTH = 800;
     public final int HEIGHT = WIDTH;
-    public final int ROWS = 50;
-    public final int COLUMNS = ROWS;
-    public final int SQUARE_SIZE = WIDTH / ROWS;
+
+    public View(HELBArmy controler) {
+        this.CONTROLER = controler;
+    }
 
     /*
         Draw background
     */
     public void drawBackground(GraphicsContext gc)
     {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLUMNS; j++) {
+        for (int i = 0; i < CONTROLER.ROWS; i++) {
+            for (int j = 0; j < CONTROLER.COLUMNS; j++) {
                 if ((i + j) % 2 == 0) {
                     gc.setFill(Color.web("AAD751"));
                 } else {
                     gc.setFill(Color.web("A2D149"));
                 }
-                gc.fillRect(i * SQUARE_SIZE, j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+                gc.fillRect(i * CONTROLER.SQUARE_SIZE, j * CONTROLER.SQUARE_SIZE, CONTROLER.SQUARE_SIZE, CONTROLER.SQUARE_SIZE);
             }
         }
     }
@@ -34,7 +36,7 @@ public class View {
     public void drawEntity(GraphicsContext gc, ArrayList<Entity> entityList)
     {
         for (Entity entity : entityList) {
-            gc.drawImage(new Image(entity.getImagePath()), entity.position.x * SQUARE_SIZE, entity.position.y * SQUARE_SIZE, SQUARE_SIZE * entity.getWidth(), SQUARE_SIZE * entity.getWidth());
+            gc.drawImage(new Image(entity.getImagePath()), entity.position.x * CONTROLER.SQUARE_SIZE, entity.position.y * CONTROLER.SQUARE_SIZE, CONTROLER.SQUARE_SIZE * entity.getWidth(), CONTROLER.SQUARE_SIZE * entity.getWidth());
             
             // if (entity instanceof Collector)
             // {

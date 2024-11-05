@@ -137,7 +137,7 @@ public abstract class Entity {
         return this.position.equals(position);
     }
 
-    private Entity getNearestEntity(ArrayList<Entity> entityList)
+    public Entity getNearestEntity(ArrayList<Entity> entityList)
     {
         if (entityList.size() == 0) return null;
 
@@ -157,34 +157,6 @@ public abstract class Entity {
         return nearestEntity;
     }
 
-    public Collector getNearestEnemyCollector()
-    {
-        ArrayList<Entity> availableCollector = new ArrayList<>();
-
-        for (MovableEntity unity : gameBoard.unityList)
-        {
-            if (unity instanceof Collector)
-            {
-                if (!unity.getSide().equals(this.side))
-                {
-                    availableCollector.add(unity);
-                }
-            }
-        }
-        
-        return (Collector) getNearestEntity(availableCollector);
-    }
-
-    public Tree getNearestTree()
-    {
-        ArrayList<Entity> availableTree = new ArrayList<>();
-
-        for (Tree tree : gameBoard.treesList) {
-            if(tree.exist && tree.getAccessibleAdjacentPositions().size() > 0) availableTree.add(tree);
-        }
-
-        return (Tree) getNearestEntity(availableTree);
-    }
     @Override
     public String toString()
     {

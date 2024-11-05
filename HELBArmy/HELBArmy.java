@@ -20,9 +20,17 @@ import java.util.Random;
 
 // Controler
 public class HELBArmy {
-    private final int CITY_DEFAULT_WIDTH = 5;
+    protected final int ROWS = 50;
+    protected final int COLUMNS = ROWS;
+    protected final int SQUARE_SIZE;
 
-    private final int TREE_NUMBERS = new Random().nextInt(100) + 10;
+    private final double FRAME_RATE = 250.0;
+
+    private final int CITY_DEFAULT_WIDTH = 5;
+    private final int MAX_TREE_NUMBERS = 100;
+    private final int MIN_TREE_NUMBERS = 10;
+
+    private final int TREE_NUMBERS = new Random().nextInt(MAX_TREE_NUMBERS - MIN_TREE_NUMBERS) + MIN_TREE_NUMBERS;
     // private final int TREE_NUMBERS = new Random().nextInt(19) + 2; // 2 - 20 both include
     // private final int TREE_NUMBERS = 1;
     // private final int TREE_NUMBERS = 100;
@@ -36,7 +44,7 @@ public class HELBArmy {
     public HashMap<String, City> citiesMap = new HashMap<>(); // HashMap to store city
     public Tree[] treesList = new Tree[TREE_NUMBERS]; // Array to store tree
 
-    private View view = new View();
+    private final View VIEW;
     private GraphicsContext gc;
 
     private long currentTime = 0;
@@ -47,9 +55,11 @@ public class HELBArmy {
         > Generate city and tree
     */
     public HELBArmy(Stage primaryStage) {
+        VIEW = new View(this);
+        SQUARE_SIZE = VIEW.WIDTH / ROWS;
         primaryStage.setTitle("HELBArmy");
         Group root = new Group();
-        Canvas canvas = new Canvas(view.WIDTH, view.HEIGHT);
+        Canvas canvas = new Canvas(VIEW.WIDTH, VIEW.HEIGHT);
         root.getChildren().add(canvas);
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
@@ -59,7 +69,7 @@ public class HELBArmy {
         generateCity();
         generateTree();
                 
-        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(250), e -> run(gc)));
+        Timeline timeline = new Timeline(new KeyFrame(Duration.millis(FRAME_RATE), e -> run(gc)));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
 
@@ -72,8 +82,8 @@ public class HELBArmy {
     private void run(GraphicsContext gc)
     {
         currentTime = new Date().getTime();
-        view.drawBackground(gc);
-        view.drawEntity(gc, entityList);
+        VIEW.drawBackground(gc);
+        VIEW.drawEntity(gc, entityList);
 
         for (MovableEntity unity : unityList) {
             unity.play();
@@ -103,7 +113,7 @@ public class HELBArmy {
 
     // ECAMPUS
     public boolean isPositionInBoard(Position pos){
-        return(pos.x >= 0 && pos.y >= 0 && pos.x < view.COLUMNS && pos.y < view.ROWS); 
+        return(pos.x >= 0 && pos.y >= 0 && pos.x < COLUMNS && pos.y < ROWS); 
     }
 
     /*
@@ -122,8 +132,8 @@ public class HELBArmy {
     */
     private void generateCity() 
     {
-        City northCity = new City(new Position(view.ROWS / 2 - CITY_DEFAULT_WIDTH / 2, 0), "north", this);
-        City southCity = new City(new Position(view.ROWS / 2 - CITY_DEFAULT_WIDTH / 2, view.COLUMNS - CITY_DEFAULT_WIDTH), "south", this);
+        City northCity = new City(new Position(ROWS / 2 - CITY_DEFAULT_WIDTH / 2, 0), "north", this);
+        City southCity = new City(new Position(ROWS / 2 - CITY_DEFAULT_WIDTH / 2, COLUMNS - CITY_DEFAULT_WIDTH), "south", this);
 
         citiesMap.put("north", northCity);
         citiesMap.put("south", southCity);
@@ -142,11 +152,11 @@ public class HELBArmy {
         for (int i = 0; i < TREE_NUMBERS; i++) {
             while(true)
             {
-                pos = new Position((int) (Math.random() * view.ROWS), (int) (Math.random() * view.COLUMNS));
+                pos = new Position((int) (Math.random() * ROWS), (int) (Math.random() * COLUMNS));
 
                 while (isInCity(pos, PROTECTED_SPACE_BEYOND_CITY))
                 {
-                    pos = new Position((int) (Math.random() * view.ROWS), (int) (Math.random() * view.COLUMNS));
+                    pos = new Position((int) (Math.random() * ROWS), (int) (Math.random() * COLUMNS));
                 }
 
 

@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Collector extends MovableEntity {
     private final int MAX_LOG = 25;
     private final int DAMAGE_TO_TREE = 1;
@@ -65,6 +67,17 @@ public class Collector extends MovableEntity {
         currentLog = 0;
     }
 
+    public Tree getNearestTree()
+    {
+        ArrayList<Entity> availableTree = new ArrayList<>();
+
+        for (Tree tree : gameBoard.treesList) {
+            if(tree.exist && tree.getAccessibleAdjacentPositions().size() > 0) availableTree.add(tree);
+        }
+
+        return (Tree) getNearestEntity(availableTree);
+    }
+    
     @Override
     public String toString() {
         return getClass().getName() + " | " + super.toString();
