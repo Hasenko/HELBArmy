@@ -142,16 +142,20 @@ public abstract class Entity {
         if (entityList.size() == 0) return null;
 
         Entity nearestEntity = entityList.get(0);
-        double minDistance = nearestEntity.getDistance(nearestEntity.position, this.position);
+        // double minDistance = nearestEntity.getDistance(nearestEntity.position, this.position);
+        double minDistance = 999999;
 
         for (Entity entity : entityList)
         {
-            double currentDistance = getDistance(entity.position, this.position);
-
-            if (currentDistance <= minDistance)
+            if (entity != null)
             {
-                minDistance = currentDistance;
-                nearestEntity = entity;
+                double currentDistance = getDistance(entity.position, this.position);
+
+                if (currentDistance <= minDistance)
+                {
+                    minDistance = currentDistance;
+                    nearestEntity = entity;
+                }
             }
         }
         return nearestEntity;
