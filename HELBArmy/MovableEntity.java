@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public abstract class MovableEntity extends Entity {
     /*
@@ -65,7 +66,9 @@ public abstract class MovableEntity extends Entity {
 
     protected void goToPosition(Position posTarget)
     {
-        this.position = getNextPositionForTarget(posTarget);
+        Position nextPosition = getNextPositionForTarget(posTarget);
+        if (gameBoard.isPositionInBoard(nextPosition))
+            this.position = nextPosition;
     }
 
     protected void goToEntity(Entity entity)
@@ -134,5 +137,14 @@ public abstract class MovableEntity extends Entity {
     protected boolean isFighting()
     {
         return getAdjacentEnemyUnity().size() > 0;
+    }
+
+    protected void fightRandomAdjacentUnity()
+    {
+        ArrayList<MovableEntity> adjacentEnemyUnity = getAdjacentEnemyUnity();
+        int enemyToHitIndex = new Random().nextInt(adjacentEnemyUnity.size());
+
+        System.out.println(this + " is hitting " + adjacentEnemyUnity.get(enemyToHitIndex));
+        hit(adjacentEnemyUnity.get(enemyToHitIndex));
     }
 }
