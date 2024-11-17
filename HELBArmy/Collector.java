@@ -52,6 +52,7 @@ public class Collector extends MovableEntity {
         else
         {
             System.out.println(this + " is fighting");
+            fightRandomAdjacentUnity();
         }
         
     }
