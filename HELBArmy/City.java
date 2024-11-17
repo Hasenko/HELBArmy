@@ -85,6 +85,7 @@ public class City extends Entity {
         System.out.println("---------------------");
         System.out.println("Generating Horsemen !");
         System.out.println("---------------------");
+        newUnits = new Horsemen(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
     }
     
     private void generatePikemen()
