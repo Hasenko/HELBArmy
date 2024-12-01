@@ -7,53 +7,26 @@ public class Deserter extends MovableEntity{
     }
 
     @Override
-    protected void play() {
-        if (!isFighting())
-        {
-            MovableEntity target = getNearestEnemy();
+    protected void moveAction()
+    {
+        MovableEntity target = getNearestEnemy();
                 
-            if (target == null)
-            {
-                return;
-            }
+        if (target == null)
+        {
+            return;
+        }
 
-            if (target instanceof Collector)
+        if (target instanceof Collector)
+        {
+            if (!isCloseToEntity(target))
             {
-                if (!isCloseToEntity(target))
-                {
-                    goToEntity(target);
-                }
-            }
-            else
-            {
-                System.out.println(this + " running away from " + target);
-                runAwayFrom(target);
+                goToEntity(target);
             }
         }
         else
         {
-            System.out.println(this + " is fighting");
-            fightRandomAdjacentUnity();
-        }
-    }
-
-    private void runAwayFrom(MovableEntity target)
-    {
-        Position positionToGoTo = new Position(this.position.x, this.position.y);
-
-        if (target.position.x > this.position.x)
-            positionToGoTo.x = this.position.x - 1;
-        
-        if (target.position.x < this.position.x)
-            positionToGoTo.x = this.position.x + 1;
-
-        if (target.position.y > this.position.y)
-            positionToGoTo.y = this.position.y - 1;
-        
-        if (target.position.y < this.position.y)
-            positionToGoTo.y = this.position.y + 1;
-
-        goToPosition(positionToGoTo);
+            runAwayFrom(target);
+        }    
     }
 
     private MovableEntity getNearestEnemy()
@@ -73,6 +46,6 @@ public class Deserter extends MovableEntity{
     
     @Override
     public String toString() {
-        return getClass().getName() + " | " + super.toString();
+        return "| " + getClass().getName() + " | " + super.toString() + " |";
     }
 }
