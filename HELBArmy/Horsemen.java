@@ -13,16 +13,42 @@ public class Horsemen extends MovableEntity {
     {
         if (!isFighting())
         {
-            Deserter nearestEnemyDeserter = getNearestEnemyDeserter();
+            ArrayList<Entity> nearestDeserterAndHorsemen = new ArrayList<>() {{
+                add(getNearestEnemyDeserter());
+                add(getNearestAllyHorsemen());
+            }};
 
-            if (nearestEnemyDeserter == null)
+            MovableEntity target = (MovableEntity) getNearestEntity(nearestDeserterAndHorsemen);
+            if (target == null)
             {
                 return;
             }
 
-            if (!isCloseToEntity(nearestEnemyDeserter))
+            // if the Horsemen ally is closer than the enemy Deserter
+            if (target instanceof Horsemen)
             {
-                goToEntity(nearestEnemyDeserter);
+
+                // if the distance between this Horsemen and the Horsement ally is not respected
+                if (getDistance(this.position, target.position) + 1 < safetyDistance)
+                {
+                    // MoveAway from Horsemen ally
+                    runAwayFrom(target);
+                    System.out.println(getSide() + " Horsemen running away from : " + target);
+                }
+                else
+                {
+                    // Go to Horsemen ally
+                    goToEntity(target);
+                    System.out.println(getSide() + " Horsemen go to : " + target);
+                }
+            }
+            else if (target instanceof Deserter)
+            {
+
+                if (!isCloseToEntity(target))
+                {
+                    goToEntity(target);
+                }
             }
         }
         else
@@ -31,7 +57,24 @@ public class Horsemen extends MovableEntity {
             fightRandomAdjacentUnity();
         }
     }
-    
+    private Horsemen getNearestAllyHorsemen()
+    {
+        ArrayList<Entity> alliesHorsemen = new ArrayList<>();
+
+        for (MovableEntity unity : gameBoard.unityList)
+        {
+            if (unity instanceof Horsemen)
+            {
+                if (unity.getSide().equals(this.getSide()) && !unity.equals(this))
+                {
+                    alliesHorsemen.add(unity);
+                }
+            }
+        }
+        
+        return (Horsemen) getNearestEntity(alliesHorsemen);
+    }
+
     private Deserter getNearestEnemyDeserter()
     {
         ArrayList<Entity> availableDeserter = new ArrayList<>();
