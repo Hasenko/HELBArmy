@@ -89,6 +89,27 @@ public class HELBArmy {
             unity.play();
         }
 
+        /*
+        boolean isEveryHorsemenSafe = true;
+        int instanceOfHorsemen = 0;
+        for (MovableEntity unity : unityList) {
+            if (unity instanceof Horsemen)
+            {
+                instanceOfHorsemen++;
+                if (unity.isAdjacentToAnEntity())
+                {
+                    isEveryHorsemenSafe = false;
+                    break;
+                }
+            }
+        }
+
+        if (isEveryHorsemenSafe && instanceOfHorsemen > 1)
+        {
+            Horsemen.safetyDistance++;
+        }
+        */
+        
         for (Map.Entry<String, City> entry : citiesMap.entrySet())
         {
             entry.getValue().generateUnity(currentTime); // Edit to give timestamp parameter and call than on run
@@ -109,6 +130,8 @@ public class HELBArmy {
                 }
             }
         }
+
+        //System.out.println("Safety distance : " + Horsemen.safetyDistance);
     }
 
     // ECAMPUS
@@ -148,44 +171,50 @@ public class HELBArmy {
     */
     private void generateTree() 
     {
-        Position pos;
         for (int i = 0; i < TREE_NUMBERS; i++) {
-            while(true)
-            {
-                pos = new Position((int) (Math.random() * ROWS), (int) (Math.random() * COLUMNS));
-
-                while (isInCity(pos, PROTECTED_SPACE_BEYOND_CITY))
-                {
-                    pos = new Position((int) (Math.random() * ROWS), (int) (Math.random() * COLUMNS));
-                }
-
-
-                boolean canContinue = true;
-
-                for (int j = 0; j < i; j++) {
-                    if((treesList[j].position.equals(pos)))
-                    {
-                        canContinue = false;
-                        System.out.println("Random detected ! " + i + " on " + j);
-                        System.out.println(pos);
-                        System.out.println("-----------------------");
-                        System.out.println(treesList[j]);
-                        System.out.println();
-                    }
-                }
-
-                if (canContinue)
-                {
-                    break;
-                }
-
-            }
-            
+            Position pos = getUniquePosition();
             treesList[i] = new Tree(pos, this);
             entityList.add(treesList[i]);
         }
     }
 
+    public Position getUniquePosition() {
+        Position pos;
+        while (true) {
+            pos = new Position((int) (Math.random() * ROWS), (int) (Math.random() * COLUMNS));
+
+            while (isInCity(pos, PROTECTED_SPACE_BEYOND_CITY))
+            {
+                pos = new Position((int) (Math.random() * ROWS), (int) (Math.random() * COLUMNS));
+            }
+
+            boolean canContinue = true;
+
+            for (Entity entity : entityList) {
+                if (entity.position.equals(pos))
+                {
+                    canContinue = false;
+                }
+            }
+
+            for (Tree tree : treesList)
+            {
+                if (tree == null)
+                    continue;
+                if (tree.position.equals(pos))
+                {
+                    canContinue = false;
+                }
+            }
+
+            if (canContinue)
+            {
+                break;
+            }
+        }
+
+        return pos;
+    }
 
     public void removeNext(Entity entity) {
         this.unityToDestroy.add(entity);
