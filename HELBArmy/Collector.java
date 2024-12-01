@@ -14,47 +14,38 @@ public class Collector extends MovableEntity {
     }
 
     @Override
-    protected void play()
+    protected void moveAction()
     {
-        if (!isFighting())
+        if (currentLog == MAX_LOG) // collector is full
         {
-            if (currentLog == MAX_LOG) // collector is full
+            if (!isInPosition(this.logDepositPosition))
             {
-                if (!isInPosition(this.logDepositPosition))
-                {
-                    goToPosition(this.logDepositPosition);
-                }
-                else
-                {
-                    dropLogInLogDeposit();
-                }
+                goToPosition(this.logDepositPosition);
             }
-            else // collector is not full
+            else
             {
-                Tree nearestTree = getNearestTree();
-    
-                if (nearestTree == null) // no tree available to go
-                {
-                    return;
-                }
-    
-                if (!isCloseToEntity(nearestTree)) // collector is not in a position to hit the tree
-                {
-                    goToEntity(nearestTree); // got to a position to hit the tree
-                }
-                else
-                {
-                    cutTree(nearestTree);
-                }
-    
+                dropLogInLogDeposit();
             }
         }
-        else
+        else // collector is not full
         {
-            System.out.println(this + " is fighting");
-            fightRandomAdjacentUnity();
+            Tree nearestTree = getNearestTree();
+
+            if (nearestTree == null) // no tree available to go
+            {
+                return;
+            }
+
+            if (!isCloseToEntity(nearestTree)) // collector is not in a position to hit the tree
+            {
+                goToEntity(nearestTree); // got to a position to hit the tree
+            }
+            else
+            {
+                cutTree(nearestTree);
+            }
+
         }
-        
     }
 
     private void cutTree(Tree tree)
@@ -68,7 +59,7 @@ public class Collector extends MovableEntity {
         currentLog = 0;
     }
 
-    public Tree getNearestTree()
+    private Tree getNearestTree()
     {
         ArrayList<Entity> availableTree = new ArrayList<>();
 
@@ -81,6 +72,6 @@ public class Collector extends MovableEntity {
     
     @Override
     public String toString() {
-        return getClass().getName() + " | " + super.toString();
+        return "| " + getClass().getName() + " | " + super.toString() + " | current log : " + currentLog + " |";
     }
 }
