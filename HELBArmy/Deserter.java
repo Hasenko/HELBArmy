@@ -10,20 +10,13 @@ public class Deserter extends MovableEntity{
     protected void play() {
         if (!isFighting())
         {
-            Collector nearestEnemyCollector = getNearestEnemyCollector();
-
-            if (nearestEnemyCollector == null)
+            MovableEntity target = getNearestEnemy();
+                
+            if (target == null)
             {
                 return;
             }
 
-            ArrayList<Entity> nearestCollectorAndHorsemen = new ArrayList<>() {{
-                    add(getNearestEnemyHorsemen());
-                    add(getNearestEnemyCollector());
-            }};
-
-            MovableEntity target = (MovableEntity) getNearestEntity(nearestCollectorAndHorsemen);
-                
             if (target instanceof Collector)
             {
                 if (!isCloseToEntity(target))
@@ -31,7 +24,7 @@ public class Deserter extends MovableEntity{
                     goToEntity(target);
                 }
             }
-            else if (target instanceof Horsemen)
+            else
             {
                 System.out.println(this + " running away from " + target);
                 runAwayFrom(target);
@@ -63,40 +56,19 @@ public class Deserter extends MovableEntity{
         goToPosition(positionToGoTo);
     }
 
-    private Collector getNearestEnemyCollector()
+    private MovableEntity getNearestEnemy()
     {
-        ArrayList<Entity> availableCollector = new ArrayList<>();
+        ArrayList<Entity> availableEnemy = new ArrayList<>();
 
         for (MovableEntity unity : gameBoard.unityList)
         {
-            if (unity instanceof Collector)
+            if (!unity.getSide().equals(this.getSide()))
             {
-                if (!unity.getSide().equals(this.getSide()))
-                {
-                    availableCollector.add(unity);
-                }
+                availableEnemy.add(unity);
             }
         }
         
-        return (Collector) getNearestEntity(availableCollector);
-    }
-
-    private Horsemen getNearestEnemyHorsemen()
-    {
-        ArrayList<Entity> availableHorsemen = new ArrayList<>();
-
-        for (MovableEntity unity : gameBoard.unityList)
-        {
-            if (unity instanceof Horsemen)
-            {
-                if (!unity.getSide().equals(this.getSide()))
-                {
-                    availableHorsemen.add(unity);
-                }
-            }
-        }
-        
-        return (Horsemen) getNearestEntity(availableHorsemen);
+        return (MovableEntity) getNearestEntity(availableEnemy);
     }
     
     @Override
