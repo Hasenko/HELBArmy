@@ -164,13 +164,8 @@ public abstract class Entity {
     public boolean hasCollision()
     {
         for (Entity entity : gameBoard.entityList) {
-            if (this.isInPosition(entity.position))
-            {
-                System.out.println("collision detected :");
-                System.out.println(this);
-                System.out.println(entity);
+            if (this.position.equals(entity.position))
                 return true;
-            }
         }
         return false;
     }
