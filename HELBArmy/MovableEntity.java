@@ -60,7 +60,7 @@ public abstract class MovableEntity extends Entity {
     }
 
     private void destroy() {
-        System.out.println("<--!" + this + " is dying !-->");
+        System.out.println(this + " died");
         gameBoard.removeNext(this);
     }
 
@@ -124,8 +124,19 @@ public abstract class MovableEntity extends Entity {
     /*
         method to perform action of a movable entity (specific for every mv entity)
     */
-    protected abstract void play();
+    protected void play()
+    {
+        if (!isAdjacentToAnEntity())
+        {
+            moveAction();
+        }
+        else
+        {
+            fightRandomAdjacentUnity();
+        }
+    }
 
+    protected abstract void moveAction();
     /*
         method to hit an unity
     */
@@ -134,7 +145,7 @@ public abstract class MovableEntity extends Entity {
         unity.decreaseHp(damage);
     }
 
-    protected boolean isFighting()
+    protected boolean isAdjacentToAnEntity()
     {
         return getAdjacentEnemyUnity().size() > 0;
     }
@@ -144,7 +155,6 @@ public abstract class MovableEntity extends Entity {
         ArrayList<MovableEntity> adjacentEnemyUnity = getAdjacentEnemyUnity();
         int enemyToHitIndex = new Random().nextInt(adjacentEnemyUnity.size());
 
-        System.out.println(this + " is hitting " + adjacentEnemyUnity.get(enemyToHitIndex));
         hit(adjacentEnemyUnity.get(enemyToHitIndex));
     }
 
