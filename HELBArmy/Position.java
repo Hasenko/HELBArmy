@@ -14,12 +14,7 @@ public class Position {
         this.x = x;
         this.y = y;
     }
-
-    @Override
-    public String toString() {
-        return "[x : " + x + "; y : " + y + "]";
-    }
-
+    
     /*
         inspiration taken from ecampus "Cours 4 - Les fondamentaux de la POO" page 98
     */
@@ -35,4 +30,10 @@ public class Position {
     public int hashCode() {
         return super.hashCode() + x +y;
     }
+
+    @Override
+    public String toString() {
+        return "[x : " + x + "; y : " + y + "]";
+    }
+
 }
