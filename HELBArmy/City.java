@@ -50,6 +50,9 @@ public class City extends Entity {
         {
             if (newUnits != null)
             {
+                System.out.println("-------------------------------------------------");
+                System.out.println(toString() + " has generate " + newUnits.getClass().getName());
+                System.out.println("-------------------------------------------------");
                 gameBoard.entityList.add(newUnits);
                 gameBoard.unityList.add(newUnits);
                 newUnits = null;
@@ -65,34 +68,22 @@ public class City extends Entity {
 
     private void generateCollector()
     {
-        System.out.println("---------------------");
-        System.out.println("Generating Collector !");
-        System.out.println("---------------------");
-
         newUnits = new Collector(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
     }
 
     private void generateDeserter()
     {
-        System.out.println("---------------------");
-        System.out.println("Generating Deserter !");
-        System.out.println("---------------------");
         newUnits = new Deserter(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
     }
 
     private void generateHorsemen()
     {
-        System.out.println("---------------------");
-        System.out.println("Generating Horsemen !");
-        System.out.println("---------------------");
         newUnits = new Horsemen(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
     }
     
     private void generatePikemen()
     {
-        System.out.println("---------------------");
-        System.out.println("Generating Pikemen !");
-        System.out.println("---------------------");
+        newUnits = new Pikemen(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
     }
 
     public void choseUnitsToGenerate() {
@@ -101,7 +92,7 @@ public class City extends Entity {
         for (int[] cost : UNITS_COSTS)
         {
             int logsCost = cost[0];
-            int timeCost = cost[1];
+            // int timeCost = cost[1];
 
             if (totalLogs >= logsCost) // if we can generat the current units
             {
@@ -138,8 +129,6 @@ public class City extends Entity {
 
         nextGeneratorUpdate = new Date().getTime() + UNITS_COSTS[unitsIndex][1];
         totalLogs -= UNITS_COSTS[unitsIndex][0];
-
-        System.out.println("Total logs : " + totalLogs);
     }
 
     private void setPositions()
@@ -191,13 +180,7 @@ public class City extends Entity {
     @Override
     public String toString()
     {
-        return super.toString() 
-            + "; uX : " + getUnityExitX() 
-            + "; uY : " + getUnityExitY() 
-            + "; lX : " + getLogsDepositX() 
-            + "; lY : " + getLogsDepositY() 
-            + "; totalLogs : " + totalLogs
-        + "]";
+        return "| " + getSide() + " city | logs : " + totalLogs + " |";
     }
 
 }
