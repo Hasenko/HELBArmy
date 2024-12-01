@@ -147,4 +147,23 @@ public abstract class MovableEntity extends Entity {
         System.out.println(this + " is hitting " + adjacentEnemyUnity.get(enemyToHitIndex));
         hit(adjacentEnemyUnity.get(enemyToHitIndex));
     }
+
+    public void runAwayFrom(MovableEntity target)
+    {
+        Position positionToGoTo = new Position(this.position.x, this.position.y);
+
+        if (target.position.x > this.position.x)
+            positionToGoTo.x = this.position.x - 1;
+        
+        if (target.position.x < this.position.x)
+            positionToGoTo.x = this.position.x + 1;
+
+        if (target.position.y > this.position.y)
+            positionToGoTo.y = this.position.y - 1;
+        
+        if (target.position.y < this.position.y)
+            positionToGoTo.y = this.position.y + 1;
+
+        goToPosition(positionToGoTo);
+    }
 }
