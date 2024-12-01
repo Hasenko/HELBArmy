@@ -62,7 +62,7 @@ public class Tree extends Entity {
     @Override
     public String toString()
     {
-        return super.toString() + "; log : " + log + "]";
+        return "| " + getClass().getName() + " | pos : " + super.toString() + " | log : " + log + " |";
     }
 
 }
