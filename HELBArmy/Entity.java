@@ -60,6 +60,11 @@ public abstract class Entity {
         this.imagePath = imagePath;
     }
 
+    public boolean isAdjacentToEntity(Entity entity)
+    {
+        return entity.getAdjacentPositions().contains(this.position);
+    }
+
     /*
         get an array of accessible position for this
     */
@@ -77,17 +82,6 @@ public abstract class Entity {
         }
         return resultList;
     }
-    
-
-    /*
-        get distance with an entity and this
-    */
-    public double getDistance(Position pos1, Position pos2)
-    {
-        // √((x_2-x_1)²+(y_2-y_1)²)
-
-        return Math.sqrt((Math.pow(pos1.x - pos2.x, 2) + (Math.pow(pos1.y - pos2.y, 2))));
-    }
 
     // ECAMPUS
     public ArrayList<Position> getAccessibleAdjacentPositions(){
@@ -97,7 +91,7 @@ public abstract class Entity {
 
         for (Position adjacent : adjacentCoordinatesList)
         {
-            if(gameBoard.isPositionInBoard(adjacent))
+            if(Board.isPositionInBoard(adjacent))
             {
                 boolean ok = true;
 
@@ -127,29 +121,19 @@ public abstract class Entity {
         return resultList;
     }
 
-    public boolean isCloseToEntity(Entity entity)
-    {
-        return entity.getAdjacentPositions().contains(this.position);
-    }
-
-    public boolean isInPosition(Position position)
-    {
-        return this.position.equals(position);
-    }
-
     public Entity getNearestEntity(ArrayList<Entity> entityList)
     {
         if (entityList.size() == 0) return null;
 
         Entity nearestEntity = entityList.get(0);
         // double minDistance = nearestEntity.getDistance(nearestEntity.position, this.position);
-        double minDistance = 999999;
+        double minDistance = Double.MAX_VALUE;
 
         for (Entity entity : entityList)
         {
             if (entity != null)
             {
-                double currentDistance = getDistance(entity.position, this.position);
+                double currentDistance = Board.getDistance(entity.position, this.position);
 
                 if (currentDistance <= minDistance)
                 {
@@ -159,15 +143,6 @@ public abstract class Entity {
             }
         }
         return nearestEntity;
-    }
-
-    public boolean hasCollision()
-    {
-        for (Entity entity : gameBoard.entityList) {
-            if (this.position.equals(entity.position))
-                return true;
-        }
-        return false;
     }
 
     @Override
