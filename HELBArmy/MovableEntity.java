@@ -48,7 +48,7 @@ public abstract class MovableEntity extends Entity {
     {
         hp -= nb;
 
-        if (hp <= 0)
+        if (hp <= 0 && !gameBoard.unityToDestroy.contains(this))
         {
             destroy();
         }
@@ -59,7 +59,7 @@ public abstract class MovableEntity extends Entity {
         return city;
     }
 
-    private void destroy() {
+    public void destroy() {
         System.out.println(this + " died");
         gameBoard.removeNext(this);
     }
@@ -67,7 +67,7 @@ public abstract class MovableEntity extends Entity {
     protected void goToPosition(Position posTarget)
     {
         Position nextPosition = getNextPositionForTarget(posTarget);
-        if (gameBoard.isPositionInBoard(nextPosition))
+        if (Board.isPositionInBoard(nextPosition))
             this.position = nextPosition;
     }
 
@@ -83,10 +83,10 @@ public abstract class MovableEntity extends Entity {
 
         if (positions.size() > 0)
         {
-            double minDistance = getDistance(pos, positions.get(0));
+            double minDistance = Board.getDistance(pos, positions.get(0));
 
             for (Position possiblePosition : positions) {
-                double currentDistance = getDistance(pos, possiblePosition);
+                double currentDistance = Board.getDistance(pos, possiblePosition);
                 if (currentDistance < minDistance)
                 {
                     minDistance = currentDistance;
@@ -103,7 +103,7 @@ public abstract class MovableEntity extends Entity {
         return this.position;
     }
 
-    private ArrayList<MovableEntity> getAdjacentEnemyUnity()
+    public ArrayList<MovableEntity> getAdjacentEnemyUnity()
     {
         ArrayList<MovableEntity> adjacentEnemyUnity = new ArrayList<>();
         ArrayList<Position> adjacentPositions = getAdjacentPositions();
