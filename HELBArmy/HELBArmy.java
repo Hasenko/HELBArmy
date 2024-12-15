@@ -1,11 +1,11 @@
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.canvas.Canvas;
+
 import javafx.scene.canvas.GraphicsContext;
 import javafx.stage.Stage;
+import javafx.scene.Scene;
+
 import javafx.util.Duration;
 
 import javafx.event.EventHandler;
@@ -18,33 +18,28 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-// Controler
+// Controller
 public class HELBArmy {
-    protected final int ROWS = 50;
-    protected final int COLUMNS = ROWS;
+    public static final int ROWS = 50;
+    public static final int COLUMNS = ROWS;
     protected final int SQUARE_SIZE;
 
     private final double FRAME_RATE = 250.0;
 
-    private final int CITY_DEFAULT_WIDTH = 5;
-    private final int MAX_TREE_NUMBERS = 100;
-    private final int MIN_TREE_NUMBERS = 10;
-
-    private final int TREE_NUMBERS = new Random().nextInt(MAX_TREE_NUMBERS - MIN_TREE_NUMBERS) + MIN_TREE_NUMBERS;
-    // private final int TREE_NUMBERS = new Random().nextInt(19) + 2; // 2 - 20 both include
-    // private final int TREE_NUMBERS = 1;
-    // private final int TREE_NUMBERS = 100;
-
     private final int PROTECTED_SPACE_BEYOND_CITY = 2;
+    private final int CITY_DEFAULT_WIDTH = 5;
+
+    private final double TREE_RATIO = 10; // each cell has [TREE_RATIO]% chance to spawn a tree
+
     
     public ArrayList<Entity> entityList = new ArrayList<>(); // ArrayList to store entity
     public ArrayList<MovableEntity> unityList = new ArrayList<>();
-    private ArrayList<Entity> unityToDestroy = new ArrayList<>(); // ArrayList to store unity to destroy after next iteration
+    public ArrayList<Entity> unityToDestroy = new ArrayList<>(); // ArrayList to store unity to destroy after next iteration
 
     public HashMap<String, City> citiesMap = new HashMap<>(); // HashMap to store city
-    public Tree[] treesList = new Tree[TREE_NUMBERS]; // Array to store tree
+    public ArrayList<Tree> treesList = new ArrayList<>(); // ArrayList to store tree
 
-    private final View VIEW;
+    private final View view;
     private GraphicsContext gc;
 
     private long currentTime = 0;
@@ -55,16 +50,9 @@ public class HELBArmy {
         > Generate city and tree
     */
     public HELBArmy(Stage primaryStage) {
-        VIEW = new View(this);
-        SQUARE_SIZE = VIEW.WIDTH / ROWS;
-        primaryStage.setTitle("HELBArmy");
-        Group root = new Group();
-        Canvas canvas = new Canvas(VIEW.WIDTH, VIEW.HEIGHT);
-        root.getChildren().add(canvas);
-        Scene scene = new Scene(root);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-        gc = canvas.getGraphicsContext2D();
+        view = new View(this, primaryStage);
+        SQUARE_SIZE = view.WIDTH / ROWS;
+        gc = view.getGraphicsContext();
 
         generateCity();
         generateTree();
@@ -73,7 +61,7 @@ public class HELBArmy {
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
 
-        setKeyEvent(scene);
+        setKeyEvent(view.getScene());
     }
 
     /*
@@ -82,33 +70,12 @@ public class HELBArmy {
     private void run(GraphicsContext gc)
     {
         currentTime = new Date().getTime();
-        VIEW.drawBackground(gc);
-        VIEW.drawEntity(gc, entityList);
+        view.drawBackground(gc);
+        view.drawEntity(gc, entityList);
 
         for (MovableEntity unity : unityList) {
             unity.play();
         }
-
-        /*
-        boolean isEveryHorsemenSafe = true;
-        int instanceOfHorsemen = 0;
-        for (MovableEntity unity : unityList) {
-            if (unity instanceof Horsemen)
-            {
-                instanceOfHorsemen++;
-                if (unity.isAdjacentToAnEntity())
-                {
-                    isEveryHorsemenSafe = false;
-                    break;
-                }
-            }
-        }
-
-        if (isEveryHorsemenSafe && instanceOfHorsemen > 1)
-        {
-            Horsemen.safetyDistance++;
-        }
-        */
         
         for (Map.Entry<String, City> entry : citiesMap.entrySet())
         {
@@ -123,29 +90,35 @@ public class HELBArmy {
         for (Tree tree : treesList) {
             if (!tree.exist)
             {
-                if (currentTime >= tree.respawnTime && !tree.hasCollision())
+                if (currentTime >= tree.respawnTime && !tree.hasCollisionWithAnEntity())
                 {
                     tree.revive();
                     entityList.add(tree);
                 }
             }
         }
+        /*
+        System.out.println("---");
+        System.out.println("Instance of Horsemen north : " + HorsemenManager.getInstanceOfHorsemen("north"));
+        System.out.println("Safety distance of Horsemen north : " + HorsemenManager.getSafetyDistanceHorsemen("north"));
+        System.out.println("Safe counter Horsemen north : " + HorsemenManager.getSafeCounterHorsemen("north"));
+        System.out.println("---");
+        System.out.println("Instance of Horsemen south : " + HorsemenManager.getInstanceOfHorsemen("south"));
+        System.out.println("Safety distance of Horsemen south : " + HorsemenManager.getSafetyDistanceHorsemen("south"));
+        System.out.println("Safe counter Horsemen south : " + HorsemenManager.getSafeCounterHorsemen("south"));
+        */
 
-        //System.out.println("Safety distance : " + Horsemen.safetyDistance);
-    }
-
-    // ECAMPUS
-    public boolean isPositionInBoard(Position pos){
-        return(pos.x >= 0 && pos.y >= 0 && pos.x < COLUMNS && pos.y < ROWS); 
     }
 
     /*
         Return true if the given coordinate (x; y) is the position of a city (north or south) or 'potectedSpace' squares around the city
+        
+        *not in board class, because it's only used on controller*
     */
-    public boolean isInCity(Position pos, int potectedSpace)
+    public boolean isPositionInCity(Position pos)
     {
-        return (pos.x >= citiesMap.get("north").position.x - potectedSpace && pos.x < citiesMap.get("north").position.x + potectedSpace + citiesMap.get("north").getWidth() && pos.y >= citiesMap.get("north").position.y && pos.y <= citiesMap.get("north").position.y + citiesMap.get("north").getWidth() + 1)
-            || (pos.x >= citiesMap.get("south").position.x - potectedSpace && pos.x < citiesMap.get("south").position.x + potectedSpace + citiesMap.get("south").getWidth() && pos.y >= citiesMap.get("south").position.y - potectedSpace && pos.y < citiesMap.get("south").position.y + citiesMap.get("south").getWidth());
+        return (pos.x >= citiesMap.get("north").position.x - PROTECTED_SPACE_BEYOND_CITY && pos.x < citiesMap.get("north").position.x + PROTECTED_SPACE_BEYOND_CITY + citiesMap.get("north").getWidth() && pos.y >= citiesMap.get("north").position.y && pos.y <= citiesMap.get("north").position.y + citiesMap.get("north").getWidth() + 1)
+            || (pos.x >= citiesMap.get("south").position.x - PROTECTED_SPACE_BEYOND_CITY && pos.x < citiesMap.get("south").position.x + PROTECTED_SPACE_BEYOND_CITY + citiesMap.get("south").getWidth() && pos.y >= citiesMap.get("south").position.y - PROTECTED_SPACE_BEYOND_CITY && pos.y < citiesMap.get("south").position.y + citiesMap.get("south").getWidth());
     }
 
     /*
@@ -171,49 +144,32 @@ public class HELBArmy {
     */
     private void generateTree() 
     {
-        for (int i = 0; i < TREE_NUMBERS; i++) {
-            Position pos = getUniquePosition();
-            treesList[i] = new Tree(pos, this);
-            entityList.add(treesList[i]);
-        }
-    }
+        double trees = 0, cells = 0;
+        
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLUMNS; j++) {
+                Position pos = new Position(i, j);
 
-    public Position getUniquePosition() {
-        Position pos;
-        while (true) {
-            pos = new Position((int) (Math.random() * ROWS), (int) (Math.random() * COLUMNS));
-
-            while (isInCity(pos, PROTECTED_SPACE_BEYOND_CITY))
-            {
-                pos = new Position((int) (Math.random() * ROWS), (int) (Math.random() * COLUMNS));
-            }
-
-            boolean canContinue = true;
-
-            for (Entity entity : entityList) {
-                if (entity.position.equals(pos))
+                if (!isPositionInCity(pos))
                 {
-                    canContinue = false;
-                }
-            }
+                    cells++;
+                    double nb = new Random().nextDouble() * 100;
 
-            for (Tree tree : treesList)
-            {
-                if (tree == null)
-                    continue;
-                if (tree.position.equals(pos))
-                {
-                    canContinue = false;
+                    if (nb < TREE_RATIO)
+                    {
+                        trees++;
+                        Tree tree = new Tree(pos, this);
+                        treesList.add(tree);
+                        entityList.add(tree);
+                    }
                 }
-            }
-
-            if (canContinue)
-            {
-                break;
             }
         }
 
-        return pos;
+        System.out.println("nb of tree : " + trees);
+        System.out.println("cell available : " + cells);
+        System.out.println("wanted average : " + TREE_RATIO);
+        System.out.println("true average : " + trees / cells * 100);
     }
 
     public void removeNext(Entity entity) {
