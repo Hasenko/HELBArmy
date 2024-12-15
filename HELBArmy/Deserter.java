@@ -11,14 +11,14 @@ public class Deserter extends MovableEntity{
     {
         MovableEntity target = getNearestEnemy();
                 
-        if (target == null)
+        if (target == null) // no enemy on the board
         {
             return;
         }
 
         if (target instanceof Collector)
         {
-            if (!isCloseToEntity(target))
+            if (!this.isAdjacentToEntity(target))
             {
                 goToEntity(target);
             }
