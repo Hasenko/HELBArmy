@@ -18,7 +18,7 @@ public class Collector extends MovableEntity {
     {
         if (currentLog == MAX_LOG) // collector is full
         {
-            if (!isInPosition(this.logDepositPosition))
+            if (!this.logDepositPosition.equals(this.position))
             {
                 goToPosition(this.logDepositPosition);
             }
@@ -36,7 +36,7 @@ public class Collector extends MovableEntity {
                 return;
             }
 
-            if (!isCloseToEntity(nearestTree)) // collector is not in a position to hit the tree
+            if (!this.isAdjacentToEntity(nearestTree)) // collector is not in a position to hit the tree
             {
                 goToEntity(nearestTree); // got to a position to hit the tree
             }
