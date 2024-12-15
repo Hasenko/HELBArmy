@@ -32,7 +32,10 @@ public class City extends Entity {
     private ArrayList<Position> positions;
 
     private long nextGeneratorUpdate;
-    private MovableEntity newUnits = null;
+    private MovableEntity newUnits;
+    private boolean canGenerateUnits = false;
+
+    private int unitsIndex;
 
     public City(Position position, String side, HELBArmy gameBoard)
     {
@@ -48,14 +51,31 @@ public class City extends Entity {
     {
         if (currentTime >= nextGeneratorUpdate) // generate new units
         {
-            if (newUnits != null)
+            if (canGenerateUnits)
             {
+                if (unitsIndex == 0)
+                {
+                    generateCollector();
+                }
+                else if (unitsIndex == 1)
+                {
+                    generateDeserter();
+                }
+                else if (unitsIndex == 2)
+                {
+                    generatePikemen();
+                }
+                else if (unitsIndex == 3)
+                {
+                    generateHorsemen();
+                }
+                
                 System.out.println("-------------------------------------------------");
                 System.out.println(toString() + " has generate " + newUnits.getClass().getName());
                 System.out.println("-------------------------------------------------");
                 gameBoard.entityList.add(newUnits);
                 gameBoard.unityList.add(newUnits);
-                newUnits = null;
+                canGenerateUnits = false;
             }
 
             choseUnitsToGenerate();
@@ -79,6 +99,7 @@ public class City extends Entity {
     private void generateHorsemen()
     {
         newUnits = new Horsemen(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
+        
     }
     
     private void generatePikemen()
@@ -87,6 +108,7 @@ public class City extends Entity {
     }
 
     public void choseUnitsToGenerate() {
+        canGenerateUnits = true;
         int possibility = 0;
 
         for (int[] cost : UNITS_COSTS)
@@ -100,7 +122,7 @@ public class City extends Entity {
             }
         }
 
-        int unitsIndex = new Random().nextInt(possibility);
+        unitsIndex = new Random().nextInt(possibility);
 
         /*
             unitsIndex
@@ -109,23 +131,6 @@ public class City extends Entity {
                 2 -> Pikemen
                 3 -> Horsemen
         */
-
-        if (unitsIndex == 0)
-        {
-            generateCollector();
-        }
-        else if (unitsIndex == 1)
-        {
-            generateDeserter();
-        }
-        else if (unitsIndex == 2)
-        {
-            generatePikemen();
-        }
-        else if (unitsIndex == 3)
-        {
-            generateHorsemen();
-        }
 
         nextGeneratorUpdate = new Date().getTime() + UNITS_COSTS[unitsIndex][1];
         totalLogs -= UNITS_COSTS[unitsIndex][0];
