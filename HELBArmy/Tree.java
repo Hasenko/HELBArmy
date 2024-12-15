@@ -59,6 +59,15 @@ public class Tree extends Entity {
         exist = true;
     }
 
+    public boolean hasCollisionWithAnEntity()
+    {
+        for (Entity entity : gameBoard.entityList) {
+            if (this.position.equals(entity.position))
+                return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString()
     {
