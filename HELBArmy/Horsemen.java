@@ -2,11 +2,17 @@ import java.util.ArrayList;
 
 public class Horsemen extends MovableEntity {
     public static int safetyDistance = 1;
+
     public Horsemen(Position position, String side, HELBArmy gameBoard)
     {
         super(position, side, "assets/unity/" + side + "_horsemen.png", gameBoard, 200, 10, 2.0);
+        HorsemenManager.instanceOfHorsemen.put(side, HorsemenManager.getInstanceOfHorsemen(side) + 1);
     }
-
+    @Override
+    public void destroy() {
+        HorsemenManager.removeHorsemen(getSide());
+        super.destroy();
+    }
     @Override
     protected void moveAction()
     {
@@ -16,17 +22,19 @@ public class Horsemen extends MovableEntity {
         }};
 
         MovableEntity target = (MovableEntity) getNearestEntity(nearestDeserterAndHorsemen);
-        if (target == null)
+        if (target == null) // no enemy collector or ally horsemen on the board
         {
             return;
         }
 
+        HorsemenManager.safe(getSide());
+        
         // if the Horsemen ally is closer than the enemy Deserter
         if (target instanceof Horsemen)
         {
 
             // if the distance between this Horsemen and the Horsement ally is not respected
-            if (getDistance(this.position, target.position) + 1 < safetyDistance)
+            if (Board.getDistance(this.position, target.position) + 1 < HorsemenManager.getSafetyDistanceHorsemen(getSide()))
             {
                 // MoveAway from Horsemen ally
                 runAwayFrom(target);
@@ -40,7 +48,7 @@ public class Horsemen extends MovableEntity {
         else if (target instanceof Deserter)
         {
 
-            if (!isCloseToEntity(target))
+            if (!this.isAdjacentToEntity(target))
             {
                 goToEntity(target);
             }
@@ -49,7 +57,7 @@ public class Horsemen extends MovableEntity {
 
     @Override
     protected void fightRandomAdjacentUnity() {
-        safetyDistance = 1;
+        HorsemenManager.fight(getSide());
         super.fightRandomAdjacentUnity();
     }
 
