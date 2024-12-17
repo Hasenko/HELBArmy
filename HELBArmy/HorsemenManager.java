@@ -1,67 +1,80 @@
 import java.util.HashMap;
-
+/*
+    Class to handle safety distance of Horsemen
+*/
 public class HorsemenManager {
-    public static HashMap<String, Integer> safetyDistanceHorsemen = new HashMap<>();
-    public static HashMap<String, Integer> instanceOfHorsemen = new HashMap<>();
-    private static HashMap<String, Integer> safeCounterHorsemen = new HashMap<>();
+    // Map to store safety distance by sides (ex : 'north' -> 9, if Horsemen from north side are not fighting for 9 ticks)
+    public static HashMap<String, Integer> safetyDistanceHorsemenMap = new HashMap<>();
 
+    // Map to store number of Horsemen created by sides (ex : 'north' -> 4, if there are 2 Horsemen on north side)
+    public static HashMap<String, Integer> instanceOfHorsemenMap = new HashMap<>();
+
+    // Map to store number of Horsemen that are not fighting in current tick (ex : 'north' -> 4, if there are 4 Horsemen on north side that are not fighting in the current tick)
+    private static HashMap<String, Integer> safeCounterHorsemenMap = new HashMap<>();
+
+    // Called when the class is loaded by the JVM
     static {
-        safetyDistanceHorsemen.put("north", 1);
-        instanceOfHorsemen.put("north", 0);
-        safeCounterHorsemen.put("north", 0);
+        // Put default value on map to avoid null pointer exception
+        safetyDistanceHorsemenMap.put("north", 1);
+        instanceOfHorsemenMap.put("north", 0);
+        safeCounterHorsemenMap.put("north", 0);
 
-        safetyDistanceHorsemen.put("south", 1);
-        instanceOfHorsemen.put("south", 0);
-        safeCounterHorsemen.put("south", 0);
+        safetyDistanceHorsemenMap.put("south", 1);
+        instanceOfHorsemenMap.put("south", 0);
+        safeCounterHorsemenMap.put("south", 0);
     }
 
-    public static int getSafetyDistanceHorsemen(String side)
+    // Called on Horsemen contructor
+    public static void addInstance(String side)
     {
-        Integer nb = safetyDistanceHorsemen.get(side);
-        if (nb == null)
-            return 0;
-        return nb;
+        instanceOfHorsemenMap.put(side, instanceOfHorsemenMap.get(side) + 1);
     }
 
-    public static int getInstanceOfHorsemen(String side)
+    // Called when an Horsemen die
+    public static void removeInstance(String side)
     {
-        Integer nb = instanceOfHorsemen.get(side);
-        if (nb == null)
-            return 0;
-        return nb;
+        instanceOfHorsemenMap.put(side, instanceOfHorsemenMap.get(side) - 1);
     }
 
-    public static void removeHorsemen(String side)
+    // Method to get safety distance for Horsemen of a side
+    public static int getSafetyDistance(String side)
     {
-        instanceOfHorsemen.put(side, getInstanceOfHorsemen(side) - 1);
+        return safetyDistanceHorsemenMap.get(side);
     }
 
-    public static void fight(String side)
+    /*
+        Method called by Horsemen when they are fighting
+        -> put safety distance of caller side to 1
+    */
+    public static void addFightingHorsemen(String side)
     {
-        safetyDistanceHorsemen.put(side, 1);
+        safetyDistanceHorsemenMap.put(side, 1);
     }
 
-    public static void safe(String side)
+    /*
+        Method called by Horsemen when they are not fighting during a tick
+        -> increment a counter for there side that is used to know if all Horsemn of his side are safe (so they can increment there safety distance)
+    */
+    public static void addOneSafeHorsemen(String side)
     {
-        safeCounterHorsemen.put(side, getSafeCounterHorsemen(side) + 1);
+        safeCounterHorsemenMap.put(side, safeCounterHorsemenMap.get(side) + 1);
 
-        if (getSafeCounterHorsemen(side) >= getInstanceOfHorsemen(side))
+        if (areHorsemenFromSideSafe(side)) // Check if all horsemen a the side are safe (so they can increment there safety distance)
         {
             incrementSafetyDistanceByOne(side);
-            safeCounterHorsemen.put(side, 0);
+            safeCounterHorsemenMap.put(side, 0);
         }
     }
 
-    public static int getSafeCounterHorsemen(String side)
+    // Method to know every Horsemen from a specified side are safe (not fighting)
+    private static boolean areHorsemenFromSideSafe(String side)
     {
-        Integer nb = safeCounterHorsemen.get(side);
-        if (nb == null)
-            return 0;
-        return nb;
+        return safeCounterHorsemenMap.get(side) >= instanceOfHorsemenMap.get(side);
     }
 
+    // increment safety distance by 1
     private static void incrementSafetyDistanceByOne(String side)
     {
-        safetyDistanceHorsemen.put(side, getSafetyDistanceHorsemen(side) + 1);
+        safetyDistanceHorsemenMap.put(side, safetyDistanceHorsemenMap.get(side) + 1);
     }
 }
