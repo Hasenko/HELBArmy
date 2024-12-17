@@ -48,7 +48,7 @@ public abstract class MovableEntity extends Entity {
     {
         hp -= nb;
 
-        if (hp <= 0 && !gameBoard.unityToDestroy.contains(this))
+        if (hp <= 0 && !gameBoard.unityToDestroyList.contains(this))
         {
             destroy();
         }
@@ -103,22 +103,45 @@ public abstract class MovableEntity extends Entity {
         return this.position;
     }
 
-    public ArrayList<MovableEntity> getAdjacentEnemyUnity()
+    public MovableEntity getNearestEnemy()
     {
-        ArrayList<MovableEntity> adjacentEnemyUnity = new ArrayList<>();
-        ArrayList<Position> adjacentPositions = getAdjacentPositions();
+        ArrayList<Entity> availableEnemy = new ArrayList<>();
+
+        for (MovableEntity unity : gameBoard.unityList)
+        {
+            if (!unity.getSide().equals(this.getSide()))
+            {
+                availableEnemy.add(unity);
+            }
+        }
+        
+        return (MovableEntity) getNearestEntity(availableEnemy);
+    }
+
+    public boolean hasEnemyInRadius(int vision)
+    {
+        return getEnemyUnitsInRadius(vision).size() > 0;
+    }
+
+    public ArrayList<MovableEntity> getEnemyUnitsInRadius(int visionRange) {
+        ArrayList<MovableEntity> unitsInVision = new ArrayList<>();
+        ArrayList<Position> positionsInVision = getPositionsInRadius(visionRange);
 
         for (MovableEntity unity : gameBoard.unityList) {
             if (!unity.getSide().equals(this.getSide()))
             {
-                if(adjacentPositions.contains(unity.position))
+                if(positionsInVision.contains(unity.position))
                 {
-                    adjacentEnemyUnity.add(unity);
+                    unitsInVision.add(unity);
                 }
             }
         }
 
-        return adjacentEnemyUnity;
+        return unitsInVision;
+    }
+    public ArrayList<MovableEntity> getAdjacentEnemyUnity()
+    {
+        return getEnemyUnitsInRadius(1);
     }
 
     /*
