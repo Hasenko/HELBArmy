@@ -6,11 +6,11 @@ public class Horsemen extends MovableEntity {
     public Horsemen(Position position, String side, HELBArmy gameBoard)
     {
         super(position, side, "assets/unity/" + side + "_horsemen.png", gameBoard, 200, 10, 2.0);
-        HorsemenManager.instanceOfHorsemen.put(side, HorsemenManager.getInstanceOfHorsemen(side) + 1);
+        HorsemenManager.addInstance(side);
     }
     @Override
     public void destroy() {
-        HorsemenManager.removeHorsemen(getSide());
+        HorsemenManager.removeInstance(getSide());
         super.destroy();
     }
     @Override
@@ -27,14 +27,14 @@ public class Horsemen extends MovableEntity {
             return;
         }
 
-        HorsemenManager.safe(getSide());
+        HorsemenManager.addOneSafeHorsemen(getSide());
         
         // if the Horsemen ally is closer than the enemy Deserter
         if (target instanceof Horsemen)
         {
 
             // if the distance between this Horsemen and the Horsement ally is not respected
-            if (Board.getDistance(this.position, target.position) + 1 < HorsemenManager.getSafetyDistanceHorsemen(getSide()))
+            if (Board.getDistance(this.position, target.position) + 1 < HorsemenManager.getSafetyDistance(getSide()))
             {
                 // MoveAway from Horsemen ally
                 runAwayFrom(target);
@@ -57,7 +57,7 @@ public class Horsemen extends MovableEntity {
 
     @Override
     protected void fightRandomAdjacentUnity() {
-        HorsemenManager.fight(getSide());
+        HorsemenManager.addFightingHorsemen(getSide());
         super.fightRandomAdjacentUnity();
     }
 
