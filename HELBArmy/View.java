@@ -26,7 +26,6 @@ public class View {
         primaryStage.setScene(scene);
         primaryStage.show();
         this.gc = canvas.getGraphicsContext2D();
-
     }
 
     public Scene getScene()
@@ -63,38 +62,6 @@ public class View {
     {
         for (Entity entity : entityList) {
             gc.drawImage(new Image(entity.getImagePath()), entity.position.x * controller.SQUARE_SIZE, entity.position.y * controller.SQUARE_SIZE, controller.SQUARE_SIZE * entity.getWidth(), controller.SQUARE_SIZE * entity.getWidth());
-            
-            // if (entity instanceof Collector)
-            // {
-            //     for (Position position : entity.getAccessibleAdjacentPositions())
-            //     {
-            //         gc.setFill(Color.web("FFFFFF"));
-            //         gc.fillRoundRect(position.x * SQUARE_SIZE, position.y * SQUARE_SIZE, SQUARE_SIZE - 1, SQUARE_SIZE - 1, 35, 35);
-            //     }
-            // }
-
-            /*
-            // SHOW TREE ACCESSIBLE POSITION
-            if (entity instanceof Tree)
-            {
-                for (Position position : entity.getAccessibleAdjacentPositions())
-                {
-                    gc.setFill(Color.web("FF0000"));
-                    gc.fillRoundRect(position.x * SQUARE_SIZE, position.y * SQUARE_SIZE, SQUARE_SIZE - 1, SQUARE_SIZE - 1, 35, 35);
-                }
-            }
-            */
-
-            // SHOW PIKEMEN ACCESSIBLE POSITION
-            if (entity instanceof Pikemen)
-            {
-                for (Position position : entity.getAccessibleAdjacentPositions())
-                {
-                    gc.setFill(Color.web("FF00FF"));
-                    gc.fillRoundRect(position.x * controller.SQUARE_SIZE, position.y * controller.SQUARE_SIZE, controller.SQUARE_SIZE - 1, controller.SQUARE_SIZE - 1, 35, 35);
-                }
-            }
-
         }
     }
 }
