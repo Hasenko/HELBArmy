@@ -66,21 +66,72 @@ public abstract class Entity {
     }
 
     /*
-        get an array of accessible position for this
+        Method to know is a position in already taken by an entity on the board.
+        iterate trough entityList and treesList
     */
-    // ECAMPUS
-    protected ArrayList<Position> getAdjacentPositions(){
+    public boolean isPositionTakenByEntity(Position pos)
+    {
+        boolean response = false;
 
-        ArrayList<Position> resultList = new ArrayList<Position>();
-        
-        for(int i = this.position.x-1 ;  i <= this.position.x+1 ; i++){
-            for(int j = this.position.y-1 ;  j <= this.position.y+1 ; j++){
+        for (Entity entity : gameBoard.entityList) {
+            if (entity.position.equals(pos))
+            {
+                response = true;
+                break;
+            }
+        }
+
+        for (Tree tree : gameBoard.treesList)
+        {
+            if (tree.position.equals(pos))
+            {
+                response = true;
+                break;
+            }
+        }
+
+        return response;
+
+    }
+
+    /*
+        Method to get a position taken by no entities (tree, movable entities, cities, ...)
+    */
+    public Position getUniquePosition() {
+        Position pos = new Position((int) (Math.random() * HELBArmy.ROWS), (int) (Math.random() * HELBArmy.COLUMNS));
+
+        // generate random position that is not in city area
+        while (gameBoard.isPositionInCity(pos) || isPositionTakenByEntity(pos))
+        {
+            pos = new Position((int) (Math.random() * HELBArmy.ROWS), (int) (Math.random() * HELBArmy.COLUMNS));
+        }
+
+        return pos;
+    }
+
+    /*
+        get an array of position in a certain radius of this
+    */
+    public ArrayList<Position> getPositionsInRadius(int radius)
+    {
+        ArrayList<Position> resultList = new ArrayList<>();
+
+        for(int i = this.position.x-radius ;  i <= this.position.x+radius ; i++){
+            for(int j = this.position.y-radius ;  j <= this.position.y+radius ; j++){
                 if(!(i == this.position.x && j == this.position.y)){
                     resultList.add(new Position(i, j));
                 }
             }     
         }
+
         return resultList;
+    }
+
+    /*
+        get an array of adjacent position of this
+    */
+    protected ArrayList<Position> getAdjacentPositions(){
+        return getPositionsInRadius(1);
     }
 
     // ECAMPUS
