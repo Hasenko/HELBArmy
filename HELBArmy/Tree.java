@@ -2,14 +2,13 @@ import java.util.Date;
 import java.util.Random;
 
 public class Tree extends Entity {
+    public long respawnTime = 0;
+
     private final int MAX_LOG = 100;
     private final int DEFAULT_LOG;
     private final int DEFAULT_RESPAWN_TIME = 30000;
-    // private final int DEFAULT_RESPAWN_TIME = 5000;
 
     private int log;
-    public boolean exist;
-    public long respawnTime = 0;
 
     public Tree(Position position, HELBArmy gameBoard)
     {
@@ -17,7 +16,6 @@ public class Tree extends Entity {
         this.log = new Random().nextInt(MAX_LOG + 1);
         // this.log = 100;
         this.DEFAULT_LOG = log;
-        exist = true;
     }
 
     /*
@@ -36,27 +34,19 @@ public class Tree extends Entity {
         if (log <= 0)
         {
             log = 0;
-            exist = false;
             this.gameBoard.entityList.remove(this);
             respawnTime = new Date().getTime() + DEFAULT_RESPAWN_TIME;
         }
         return baseLog - log;
     }
 
-    public int getLog()
-    {
-        return log;
-    }
-
+    /*
+        method called when the tree respawn after 30 sec
+        should get his base initial log and position.
+    */
     public void revive()
     {
-        /*
-            method called when the tree respawn after 30 sec
-            should get his base initial log and position.
-        */
-
         log = DEFAULT_LOG;
-        exist = true;
     }
 
     public boolean hasCollisionWithAnEntity()
@@ -66,6 +56,11 @@ public class Tree extends Entity {
                 return true;
         }
         return false;
+    }
+
+    public boolean isAvailable()
+    {
+        return log > 0;
     }
 
     @Override
