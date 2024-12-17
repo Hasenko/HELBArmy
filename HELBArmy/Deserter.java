@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 public class Deserter extends MovableEntity{
 
     public Deserter(Position position, String side, HELBArmy gameBoard) {
@@ -27,21 +25,6 @@ public class Deserter extends MovableEntity{
         {
             runAwayFrom(target);
         }    
-    }
-
-    private MovableEntity getNearestEnemy()
-    {
-        ArrayList<Entity> availableEnemy = new ArrayList<>();
-
-        for (MovableEntity unity : gameBoard.unityList)
-        {
-            if (!unity.getSide().equals(this.getSide()))
-            {
-                availableEnemy.add(unity);
-            }
-        }
-        
-        return (MovableEntity) getNearestEntity(availableEnemy);
     }
     
     @Override
