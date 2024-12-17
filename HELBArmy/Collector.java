@@ -64,7 +64,7 @@ public class Collector extends MovableEntity {
         ArrayList<Entity> availableTree = new ArrayList<>();
 
         for (Tree tree : gameBoard.treesList) {
-            if(tree.exist && tree.getAccessibleAdjacentPositions().size() > 0) availableTree.add(tree);
+            if(tree.isAvailable() && tree.getAccessibleAdjacentPositions().size() > 0) availableTree.add(tree);
         }
 
         return (Tree) getNearestEntity(availableTree);
