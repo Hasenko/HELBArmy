@@ -34,7 +34,7 @@ public class HELBArmy {
     
     public ArrayList<Entity> entityList = new ArrayList<>(); // ArrayList to store entity
     public ArrayList<MovableEntity> unityList = new ArrayList<>();
-    public ArrayList<Entity> unityToDestroy = new ArrayList<>(); // ArrayList to store unity to destroy after next iteration
+    public ArrayList<Entity> unityToDestroyList = new ArrayList<>(); // ArrayList to store unity to destroy after next iteration
 
     public HashMap<String, City> citiesMap = new HashMap<>(); // HashMap to store city
     public ArrayList<Tree> treesList = new ArrayList<>(); // ArrayList to store tree
@@ -82,13 +82,13 @@ public class HELBArmy {
             entry.getValue().generateUnity(currentTime); // Edit to give timestamp parameter and call than on run
         }
 
-        for (Entity entity : unityToDestroy) {
+        for (Entity entity : unityToDestroyList) {
             this.entityList.remove(entity);
             this.unityList.remove(entity);
         }
 
         for (Tree tree : treesList) {
-            if (!tree.exist)
+            if (!tree.isAvailable())
             {
                 if (currentTime >= tree.respawnTime && !tree.hasCollisionWithAnEntity())
                 {
@@ -173,7 +173,7 @@ public class HELBArmy {
     }
 
     public void removeNext(Entity entity) {
-        this.unityToDestroy.add(entity);
+        this.unityToDestroyList.add(entity);
     }
 
     private void setKeyEvent(Scene scene)
