@@ -7,6 +7,14 @@
         "/usr/share/openjfx/lib/javafx.graphics.jar",
         "/usr/share/openjfx/lib/javafx.media.jar",
         "/usr/share/openjfx/lib/javafx.swing.jar",
-        "/usr/share/openjfx/lib/javafx.web.jar"
+        "/usr/share/openjfx/lib/javafx.web.jar",
+        "c:\\Program Files\\Java\\javafx\\javafx-sdk-23.0.1\\lib\\javafx.base.jar",
+        "c:\\Program Files\\Java\\javafx\\javafx-sdk-23.0.1\\lib\\javafx.controls.jar",
+        "c:\\Program Files\\Java\\javafx\\javafx-sdk-23.0.1\\lib\\javafx.fxml.jar",
+        "c:\\Program Files\\Java\\javafx\\javafx-sdk-23.0.1\\lib\\javafx.graphics.jar",
+        "c:\\Program Files\\Java\\javafx\\javafx-sdk-23.0.1\\lib\\javafx.media.jar",
+        "c:\\Program Files\\Java\\javafx\\javafx-sdk-23.0.1\\lib\\javafx.swing.jar",
+        "c:\\Program Files\\Java\\javafx\\javafx-sdk-23.0.1\\lib\\javafx.web.jar",
+        "c:\\Program Files\\Java\\javafx\\javafx-sdk-23.0.1\\lib\\javafx-swt.jar"
     ]
 }
