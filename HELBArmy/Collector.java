@@ -8,7 +8,7 @@ public class Collector extends MovableEntity {
     private Position logDepositPosition;
 
     public Collector(Position position, String side, HELBArmy gameBoard) {
-        super(position, side, "assets/unity/" + side + "_collector.png", gameBoard, 50, 5);
+        super(position, side, "assets/unity/" + side + "_collector.png", gameBoard, 150.0, 5.0);
         this.currentLog = 0;
         this.logDepositPosition = new Position(getCity().getLogsDepositX(), getCity().getLogsDepositY());
     }
@@ -16,22 +16,22 @@ public class Collector extends MovableEntity {
     @Override
     protected void moveAction()
     {
-        if (currentLog == MAX_LOG) // collector is full
+        if (currentLog == MAX_LOG) // collector is full of log
         {
-            if (!this.logDepositPosition.equals(this.position))
+            if (!this.logDepositPosition.equals(this.position)) // collector is not on log deposit position
             {
                 goToPosition(this.logDepositPosition);
             }
-            else
+            else // collector is on log deposit position, drop log
             {
                 dropLogInLogDeposit();
             }
         }
-        else // collector is not full
+        else // collector is not full of log
         {
             Tree nearestTree = getNearestTree();
 
-            if (nearestTree == null) // no tree available to go
+            if (nearestTree == null) // no tree available to go, stay still
             {
                 return;
             }
@@ -44,7 +44,6 @@ public class Collector extends MovableEntity {
             {
                 cutTree(nearestTree);
             }
-
         }
     }
 

@@ -3,13 +3,15 @@ import java.util.Map;
 
 public abstract class Entity {
     private final static int DEFAULT_WIDTH = 1;
+    protected final int DEFAULT_ADJACENT_RADIUS = 1;
 
-    protected Position position;
     private String side;
     private int width;
     private String imagePath;
 
-    public HELBArmy gameBoard;
+    protected HELBArmy gameBoard;
+    
+    public Position position;
     
     public Entity(Position position, String imagePath, HELBArmy gameBoard)
     {
@@ -26,16 +28,8 @@ public abstract class Entity {
         this.position = position;
         setSide(side);
         this.width = width;
-        this.imagePath = imagePath;
+        setImagePath(imagePath);
         this.gameBoard = gameBoard;
-    }
-
-    private void setSide(String side)
-    {
-        if (side.equals("north") || side.equals("south") || side.equals("neutral"))
-            this.side = side;
-        else
-            throw new IllegalArgumentException("side must be : north - south - neutral");
     }
 
     public String getSide()
@@ -53,72 +47,32 @@ public abstract class Entity {
         return imagePath;
     }
 
-    public void setImagePath(String imagePath)
-    {
-        if (!imagePath.startsWith("assets/"))
-            throw new IllegalArgumentException(imagePath + " | Base directory must be : assets/");
-        this.imagePath = imagePath;
-    }
-
-    public boolean isAdjacentToEntity(Entity entity)
-    {
-        return entity.getAdjacentPositions().contains(this.position);
-    }
-
     /*
-        Method to know is a position in already taken by an entity on the board.
-        iterate trough entityList and treesList
+        get an array of position in a certain radius of caller
+        > ex with radius = 3
+        >
+        >   * * * * * * * * * * *
+        >   * * * * * * * * * * *
+        >   * * / / / / / / / * *
+        >   * * / / / / / / / * *
+        >   * * / / / / / / / * *
+        >   * * / / / 0 / / / * *
+        >   * * / / / / / / / * *
+        >   * * / / / / / / / * *
+        >   * * / / / / / / / * *
+        >   * * * * * * * * * * *
+        >   * * * * * * * * * * *
     */
-    public boolean isPositionTakenByEntity(Position pos)
-    {
-        boolean response = false;
-
-        for (Entity entity : gameBoard.entityList) {
-            if (entity.position.equals(pos))
-            {
-                response = true;
-                break;
-            }
-        }
-
-        for (Tree tree : gameBoard.treesList)
-        {
-            if (tree.position.equals(pos))
-            {
-                response = true;
-                break;
-            }
-        }
-
-        return response;
-
-    }
-
-    /*
-        Method to get a position taken by no entities (tree, movable entities, cities, ...)
-    */
-    public Position getUniquePosition() {
-        Position pos = new Position((int) (Math.random() * HELBArmy.ROWS), (int) (Math.random() * HELBArmy.COLUMNS));
-
-        // generate random position that is not in city area
-        while (gameBoard.isPositionInCity(pos) || isPositionTakenByEntity(pos))
-        {
-            pos = new Position((int) (Math.random() * HELBArmy.ROWS), (int) (Math.random() * HELBArmy.COLUMNS));
-        }
-
-        return pos;
-    }
-
-    /*
-        get an array of position in a certain radius of this
-    */
-    public ArrayList<Position> getPositionsInRadius(int radius)
+    protected ArrayList<Position> getPositionsInRadius(int radius)
     {
         ArrayList<Position> resultList = new ArrayList<>();
 
-        for(int i = this.position.x-radius ;  i <= this.position.x+radius ; i++){
-            for(int j = this.position.y-radius ;  j <= this.position.y+radius ; j++){
-                if(!(i == this.position.x && j == this.position.y)){
+        for(int i = this.position.x-radius ;  i <= this.position.x+radius ; i++)
+        {
+            for(int j = this.position.y-radius ;  j <= this.position.y+radius ; j++)
+            {
+                if(!(i == this.position.x && j == this.position.y))
+                {
                     resultList.add(new Position(i, j));
                 }
             }     
@@ -127,57 +81,61 @@ public abstract class Entity {
         return resultList;
     }
 
-    /*
-        get an array of adjacent position of this
-    */
-    protected ArrayList<Position> getAdjacentPositions(){
-        return getPositionsInRadius(1);
+    // get an array of adjacent position of caller
+    protected ArrayList<Position> getAdjacentPositions()
+    {
+        return getPositionsInRadius(DEFAULT_ADJACENT_RADIUS);
     }
 
-    // ECAMPUS
-    public ArrayList<Position> getAccessibleAdjacentPositions(){
+    // method to know if caller is adjacent to a specified entity
+    protected boolean isAdjacentToEntity(Entity entity)
+    {
+        return entity.getAdjacentPositions().contains(this.position);
+    }
 
+    // method to adjacent position where caller can move
+    protected ArrayList<Position> getAccessibleAdjacentPositions()
+    {
         ArrayList<Position> resultList = new ArrayList<Position>();
-        ArrayList<Position> adjacentCoordinatesList = getAdjacentPositions();
+        ArrayList<Position> adjacentPositionsList = getAdjacentPositions();
 
-        for (Position adjacent : adjacentCoordinatesList)
+        adjacentPositionLoop:
+        for (Position adjacent : adjacentPositionsList)
         {
             if(Board.isPositionInBoard(adjacent))
             {
-                boolean ok = true;
 
-                for (Map.Entry<String, City> entry : gameBoard.citiesMap.entrySet()) {
+                for (Map.Entry<String, City> entry : gameBoard.citiesMap.entrySet())
+                {
                     City city = entry.getValue();
 
                     if (city.getPositions().contains(adjacent))
                     {
-                        ok = false;
+                        continue adjacentPositionLoop;
                     }
                 }
 
-                for (Entity entity : gameBoard.entityList) {
-                    if (entity.position.equals(adjacent))
-                    {
-                        ok = false;
-                    }
-                }
-                if (ok)
+                for (Entity entity : gameBoard.entityList)
                 {
-                    resultList.add(adjacent);
+                    if (entity.position.equals(adjacent) && !gameBoard.collectablesList.contains(entity))
+                    {
+                        continue adjacentPositionLoop;
+                    }
                 }
 
+                resultList.add(adjacent);
             }
         }
 
         return resultList;
     }
 
-    public Entity getNearestEntity(ArrayList<Entity> entityList)
+    // method to get the nearest entity from caller from a list given
+    protected Entity getNearestEntity(ArrayList<Entity> entityList)
     {
         if (entityList.size() == 0) return null;
 
         Entity nearestEntity = entityList.get(0);
-        // double minDistance = nearestEntity.getDistance(nearestEntity.position, this.position);
         double minDistance = Double.MAX_VALUE;
 
         for (Entity entity : entityList)
@@ -194,6 +152,29 @@ public abstract class Entity {
             }
         }
         return nearestEntity;
+    }
+
+    // method called when an entity must be destroyed from the game
+    protected void destroy()
+    {
+        gameBoard.removeNext(this);
+    }
+
+    // called by entity constructor to separate attributs logics
+    private void setSide(String side)
+    {
+        if (side.equals("north") || side.equals("south") || side.equals("neutral"))
+            this.side = side;
+        else
+            throw new IllegalArgumentException("side must be : north - south - neutral");
+    }
+
+    // called by entity constructor to separate attributs logics
+    private void setImagePath(String imagePath)
+    {
+        if (!imagePath.startsWith("assets/"))
+            throw new IllegalArgumentException(imagePath + " | Base directory must be : assets/");
+        this.imagePath = imagePath;
     }
 
     @Override

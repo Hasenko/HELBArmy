@@ -10,14 +10,16 @@ import java.util.ArrayList;
 
 public class View {
     private final HELBArmy controller;
-    public final int WIDTH = 800;
-    public final int HEIGHT = WIDTH;
+    private final int WIDTH = 800;
+    private final int HEIGHT = WIDTH;
+
     private GraphicsContext gc;
     private Scene scene;
 
     public View(HELBArmy controller, Stage primaryStage) {
         this.controller = controller;
 
+        // init base of window
         primaryStage.setTitle("HELBArmy");
         Group root = new Group();
         Canvas canvas = new Canvas(WIDTH, HEIGHT);
@@ -26,6 +28,11 @@ public class View {
         primaryStage.setScene(scene);
         primaryStage.show();
         this.gc = canvas.getGraphicsContext2D();
+    }
+
+    public int getWidth()
+    {
+        return this.WIDTH;
     }
 
     public Scene getScene()
@@ -38,9 +45,7 @@ public class View {
         return this.gc;
     }
 
-    /*
-        Draw background
-    */
+    // draw background
     public void drawBackground(GraphicsContext gc)
     {
         for (int i = 0; i < HELBArmy.ROWS; i++) {
@@ -55,9 +60,7 @@ public class View {
         }
     }
 
-    /*
-        Draw entity on the windows
-    */
+    // draw entity
     public void drawEntity(GraphicsContext gc, ArrayList<Entity> entityList)
     {
         for (Entity entity : entityList) {

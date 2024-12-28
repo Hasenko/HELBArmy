@@ -61,7 +61,7 @@ public class HorsemenManager {
 
         if (areHorsemenFromSideSafe(side)) // Check if all horsemen a the side are safe (so they can increment there safety distance)
         {
-            incrementSafetyDistanceByOne(side);
+            increaseSafetyDistanceByOne(side);
             safeCounterHorsemenMap.put(side, 0);
         }
     }
@@ -73,7 +73,7 @@ public class HorsemenManager {
     }
 
     // increment safety distance by 1
-    private static void incrementSafetyDistanceByOne(String side)
+    private static void increaseSafetyDistanceByOne(String side)
     {
         safetyDistanceHorsemenMap.put(side, safetyDistanceHorsemenMap.get(side) + 1);
     }

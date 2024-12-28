@@ -1,13 +1,6 @@
 public class Position {
-    private final static int VOID_X = -10;
-    private final static int VOID_Y = -10;
     public int x;
     public int y;
-
-    public Position()
-    {
-        this(VOID_X, VOID_Y);
-    }
 
     public Position(int x, int y)
     {
@@ -28,7 +21,7 @@ public class Position {
 
     @Override
     public int hashCode() {
-        return super.hashCode() + x +y;
+        return super.hashCode() + x + y;
     }
 
     @Override

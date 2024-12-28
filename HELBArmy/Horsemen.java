@@ -1,18 +1,17 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Horsemen extends MovableEntity {
-    public static int safetyDistance = 1;
-
     public Horsemen(Position position, String side, HELBArmy gameBoard)
     {
-        super(position, side, "assets/unity/" + side + "_horsemen.png", gameBoard, 200, 10, 2.0);
+        super(position, side, "assets/unity/" + side + "_horsemen.png", gameBoard, 200.0, 10.0);
+        setAttackMultiplicator(new HashMap<>() {{
+            put(Deserter.class, 2.0);
+        }});
+
         HorsemenManager.addInstance(side);
     }
-    @Override
-    public void destroy() {
-        HorsemenManager.removeInstance(getSide());
-        super.destroy();
-    }
+    
     @Override
     protected void moveAction()
     {
@@ -22,7 +21,7 @@ public class Horsemen extends MovableEntity {
         }};
 
         MovableEntity target = (MovableEntity) getNearestEntity(nearestDeserterAndHorsemen);
-        if (target == null) // no enemy collector or ally horsemen on the board
+        if (target == null) // no enemy deserter or ally horsemen on the board
         {
             return;
         }
@@ -59,6 +58,12 @@ public class Horsemen extends MovableEntity {
     protected void fightRandomAdjacentUnity() {
         HorsemenManager.addFightingHorsemen(getSide());
         super.fightRandomAdjacentUnity();
+    }
+
+    @Override
+    public void destroy() {
+        HorsemenManager.removeInstance(getSide());
+        super.destroy();
     }
 
     private Horsemen getNearestAllyHorsemen()
@@ -99,6 +104,6 @@ public class Horsemen extends MovableEntity {
 
     @Override
     public String toString() {
-        return "| " + getClass().getName() + " | " + super.toString() + " | safety distance : " + safetyDistance + " |";
+        return "| " + getClass().getName() + " | " + super.toString() + " | safety distance : " + HorsemenManager.getSafetyDistance(getSide()) + " |";
     }
 }

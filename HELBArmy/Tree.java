@@ -2,19 +2,17 @@ import java.util.Date;
 import java.util.Random;
 
 public class Tree extends Entity {
-    public long respawnTime = 0;
-
     private final int MAX_LOG = 100;
-    private final int DEFAULT_LOG;
+    private final int DEFAULT_LOG; // log received on spawn
     private final int DEFAULT_RESPAWN_TIME = 30000;
 
-    private int log;
+    private long respawnTime = 0; // new respawn time when tree is cuted
+    private int log; // current log
 
     public Tree(Position position, HELBArmy gameBoard)
     {
         super(position, "assets/special/tree.png", gameBoard);
         this.log = new Random().nextInt(MAX_LOG + 1);
-        // this.log = 100;
         this.DEFAULT_LOG = log;
     }
 
@@ -40,15 +38,13 @@ public class Tree extends Entity {
         return baseLog - log;
     }
 
-    /*
-        method called when the tree respawn after 30 sec
-        should get his base initial log and position.
-    */
+    // method called when the tree respawn
     public void revive()
     {
         log = DEFAULT_LOG;
     }
 
+    // possible duplication, but i can't use method from controller because it will always return true
     public boolean hasCollisionWithAnEntity()
     {
         for (Entity entity : gameBoard.entityList) {
@@ -61,6 +57,11 @@ public class Tree extends Entity {
     public boolean isAvailable()
     {
         return log > 0;
+    }
+
+    public long getRespawnTime() 
+    {
+        return respawnTime;
     }
 
     @Override

@@ -20,43 +20,45 @@ import java.util.Random;
 
 // Controller
 public class HELBArmy {
-    public static final int ROWS = 50;
-    public static final int COLUMNS = ROWS;
-    protected final int SQUARE_SIZE;
-
-    private final double FRAME_RATE = 250.0;
+    private final double FRAME_RATE = 1000.0;
 
     private final int PROTECTED_SPACE_BEYOND_CITY = 2;
     private final int CITY_DEFAULT_WIDTH = 5;
 
     private final double TREE_RATIO = 10; // each cell has [TREE_RATIO]% chance to spawn a tree
-
-    
-    public ArrayList<Entity> entityList = new ArrayList<>(); // ArrayList to store entity
-    public ArrayList<MovableEntity> unityList = new ArrayList<>();
-    public ArrayList<Entity> unityToDestroyList = new ArrayList<>(); // ArrayList to store unity to destroy after next iteration
-
-    public HashMap<String, City> citiesMap = new HashMap<>(); // HashMap to store city
-    public ArrayList<Tree> treesList = new ArrayList<>(); // ArrayList to store tree
+    private final int PHILOSOPHERS_STONE_NUMBER = 2;
 
     private final View view;
     private GraphicsContext gc;
 
-    private long currentTime = 0;
+    private long currentTime = 0; // used for timestamp
+
+    private Flag flag;
+
+    protected final int SQUARE_SIZE;
+
+    public static final int ROWS = 50;
+    public static final int COLUMNS = ROWS;
+
+    public ArrayList<Entity> entityList = new ArrayList<>(); // ArrayList to store entity
+    public ArrayList<MovableEntity> unityList = new ArrayList<>(); // ArrayList to store movable entities
+    public ArrayList<Entity> unityToDestroyList = new ArrayList<>(); // ArrayList to store unity to destroy after next iteration
+    public ArrayList<Collectable> collectablesList = new ArrayList<>(); // ArrayList to store collectables, such as Flag and Philosophers Stone
+    public HashMap<String, City> citiesMap = new HashMap<>(); // HashMap to store city by side
+    public ArrayList<Tree> treesList = new ArrayList<>(); // ArrayList to store tree
 
     /*
         Constructor
-        > Setup base of the window 
+        > Setup base of the window
         > Generate city and tree
     */
     public HELBArmy(Stage primaryStage) {
         view = new View(this, primaryStage);
-        SQUARE_SIZE = view.WIDTH / ROWS;
+        SQUARE_SIZE = view.getWidth() / ROWS;
         gc = view.getGraphicsContext();
 
-        generateCity();
-        generateTree();
-                
+        initGame();
+
         Timeline timeline = new Timeline(new KeyFrame(Duration.millis(FRAME_RATE), e -> run(gc)));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play();
@@ -70,55 +72,131 @@ public class HELBArmy {
     private void run(GraphicsContext gc)
     {
         currentTime = new Date().getTime();
+
+        // draw map + entity
         view.drawBackground(gc);
         view.drawEntity(gc, entityList);
 
+        // entity play
         for (MovableEntity unity : unityList) {
             unity.play();
         }
         
+        // generation of units
         for (Map.Entry<String, City> entry : citiesMap.entrySet())
         {
-            entry.getValue().generateUnity(currentTime); // Edit to give timestamp parameter and call than on run
+            entry.getValue().generateUnity(currentTime);
         }
 
+        // remove entity that where destroy
         for (Entity entity : unityToDestroyList) {
             this.entityList.remove(entity);
             this.unityList.remove(entity);
+            this.collectablesList.remove(entity);
         }
 
+        // tree respawn
         for (Tree tree : treesList) {
             if (!tree.isAvailable())
             {
-                if (currentTime >= tree.respawnTime && !tree.hasCollisionWithAnEntity())
+                if (currentTime >= tree.getRespawnTime() && !tree.hasCollisionWithAnEntity())
                 {
                     tree.revive();
                     entityList.add(tree);
                 }
             }
         }
-        /*
-        System.out.println("---");
-        System.out.println("Instance of Horsemen north : " + HorsemenManager.getInstanceOfHorsemen("north"));
-        System.out.println("Safety distance of Horsemen north : " + HorsemenManager.getSafetyDistanceHorsemen("north"));
-        System.out.println("Safe counter Horsemen north : " + HorsemenManager.getSafeCounterHorsemen("north"));
-        System.out.println("---");
-        System.out.println("Instance of Horsemen south : " + HorsemenManager.getInstanceOfHorsemen("south"));
-        System.out.println("Safety distance of Horsemen south : " + HorsemenManager.getSafetyDistanceHorsemen("south"));
-        System.out.println("Safe counter Horsemen south : " + HorsemenManager.getSafeCounterHorsemen("south"));
-        */
 
+        // check if flag can spawn
+        if (!Flag.isFlagOnMap && currentTime >= Flag.flagRespawnTime)
+            generateFlag();
+    }
+
+    // Initialize list, map, generate city - tree - philosophers stone, ...
+    private void initGame()
+    {
+        entityList.clear();
+        killAllUnits();
+        unityList.clear();
+        unityToDestroyList.clear();
+        collectablesList.clear();
+
+        citiesMap.clear();
+        treesList.clear();
+
+        generateCity();
+        generateTree();
+        
+        for (int i = 0; i < PHILOSOPHERS_STONE_NUMBER; i++) {
+            generatePhilosophersStone();
+        }
+
+        Flag.flagRespawnTime = new Date().getTime() + Flag.DEFAULT_RESPAWN_TIME;
+        Flag.isFlagOnMap = false;
+
+        // allow all units to move
+        MovableEntity.unitsAllowedToMove.put(Collector.class, true);
+        MovableEntity.unitsAllowedToMove.put(Deserter.class, true);
+        MovableEntity.unitsAllowedToMove.put(Horsemen.class, true);
+        MovableEntity.unitsAllowedToMove.put(Pikemen.class, true);
     }
 
     /*
-        Return true if the given coordinate (x; y) is the position of a city (north or south) or 'potectedSpace' squares around the city
-        
-        *not in board class, because it's only used on controller*
+        Method to get a position taken by no entities (tree, movable entities, cities, ...)
     */
-    public boolean isPositionInCity(Position pos)
+    public Position getUniquePosition() {
+        Position pos = new Position((int) (Math.random() * HELBArmy.ROWS), (int) (Math.random() * HELBArmy.COLUMNS));
+
+        // generate random position that is not in city area
+        while (isPositionInCity(pos) || isPositionTakenByEntity(pos))
+        {
+            pos = new Position((int) (Math.random() * HELBArmy.ROWS), (int) (Math.random() * HELBArmy.COLUMNS));
+        }
+
+        return pos;
+    }
+
+    /*
+        get : entity to destroy after loop
+    */
+    public void removeNext(Entity entity) {
+        this.unityToDestroyList.add(entity);
+    }
+
+    public Flag getFlag()
+    {
+        return flag;
+    }
+
+    // Return true if the given position is the position of a city (north or south) or 'potectedSpace' squares around the city
+    private boolean isPositionInCity(Position pos)
     {
         return (pos.x >= citiesMap.get("north").position.x - PROTECTED_SPACE_BEYOND_CITY && pos.x < citiesMap.get("north").position.x + PROTECTED_SPACE_BEYOND_CITY + citiesMap.get("north").getWidth() && pos.y >= citiesMap.get("north").position.y && pos.y <= citiesMap.get("north").position.y + citiesMap.get("north").getWidth() + 1)
             || (pos.x >= citiesMap.get("south").position.x - PROTECTED_SPACE_BEYOND_CITY && pos.x < citiesMap.get("south").position.x + PROTECTED_SPACE_BEYOND_CITY + citiesMap.get("south").getWidth() && pos.y >= citiesMap.get("south").position.y - PROTECTED_SPACE_BEYOND_CITY && pos.y < citiesMap.get("south").position.y + citiesMap.get("south").getWidth());
+    }
+
+    /*
+        Method to know is a position in already taken by an entity on the board.
+        iterate trough entityList and treesList.
+    */
+    private boolean isPositionTakenByEntity(Position pos)
+    {
+        for (Entity entity : entityList) {
+            if (entity.position.equals(pos))
+            {
+                return true; // pos is taken by an entity
+            }
+        }
+
+        for (Tree tree : treesList)
+        {
+            if (tree.position.equals(pos))
+            {
+                return true; // pos is taken by a tree
+            }
+        }
+
+        return false; // pos is taken by no entity or tree
     }
 
     /*
@@ -140,7 +218,7 @@ public class HELBArmy {
 
     /*
         Generate Tree and add them on the entity list
-        > All position are differents
+        iterate trough all cell of the board
     */
     private void generateTree() 
     {
@@ -172,8 +250,29 @@ public class HELBArmy {
         System.out.println("true average : " + trees / cells * 100);
     }
 
-    public void removeNext(Entity entity) {
-        this.unityToDestroyList.add(entity);
+    // generate a philosophersStone
+    private void generatePhilosophersStone()
+    {
+        PhilosophersStone philosophersStone = new PhilosophersStone(getUniquePosition(), this);
+        collectablesList.add(philosophersStone);
+        entityList.add(philosophersStone);
+    }
+    
+    // generate a flag
+    private void generateFlag()
+    {
+        this.flag = new Flag(getUniquePosition(), this);
+        entityList.add(flag);
+        collectablesList.add(flag);
+
+        Flag.isFlagOnMap = true;
+    }
+
+    // kill all units (Movables Entities) on map
+    private void killAllUnits() {
+        for (MovableEntity unity : unityList) {
+            unity.destroy();
+        }
     }
 
     private void setKeyEvent(Scene scene)
@@ -185,67 +284,68 @@ public class HELBArmy {
                 KeyCode code = event.getCode();
                 if (code == KeyCode.A)
                 {
-                    System.out.println("Still under developpement");
+                    citiesMap.get("north").generateUnity(Collector.class);
                 }
                 else if (code == KeyCode.Z)
                 {
-                    System.out.println("Still under developpement");
+                    citiesMap.get("north").generateUnity(Deserter.class);
                 }
                 else if (code == KeyCode.E)
                 {
-                    System.out.println("Still under developpement");
+                    citiesMap.get("north").generateUnity(Horsemen.class);
                 }
                 else if (code == KeyCode.R)
                 {
-                    System.out.println("Still under developpement");
+                    citiesMap.get("north").generateUnity(Pikemen.class);
                 }
                 else if (code == KeyCode.W)
                 {
-                    System.out.println("Still under developpement");
+                    citiesMap.get("south").generateUnity(Collector.class);
                 }
                 else if (code == KeyCode.X)
                 {
-                    System.out.println("Still under developpement");
+                    citiesMap.get("south").generateUnity(Deserter.class);
                 }
                 else if (code == KeyCode.C)
                 {
-                    System.out.println("Still under developpement");
+                    citiesMap.get("south").generateUnity(Horsemen.class);
                 }
                 else if (code == KeyCode.V)
                 {
-                    System.out.println("Still under developpement");
+                    citiesMap.get("south").generateUnity(Pikemen.class);
                 }
                 else if (code == KeyCode.J)
                 {
-                    System.out.println("Still under developpement");
+                    MovableEntity.unitsAllowedToMove.put(Collector.class, !MovableEntity.unitsAllowedToMove.get(Collector.class));
                 }
                 else if (code == KeyCode.K)
                 {
-                    System.out.println("Still under developpement");
+                    MovableEntity.unitsAllowedToMove.put(Deserter.class, !MovableEntity.unitsAllowedToMove.get(Deserter.class));
                 }
                 else if (code == KeyCode.L)
                 {
-                    System.out.println("Still under developpement");
+                    MovableEntity.unitsAllowedToMove.put(Horsemen.class, !MovableEntity.unitsAllowedToMove.get(Horsemen.class));
                 }
                 else if (code == KeyCode.M)
                 {
-                    System.out.println("Still under developpement");
+                    MovableEntity.unitsAllowedToMove.put(Pikemen.class, !MovableEntity.unitsAllowedToMove.get(Pikemen.class));
                 }
                 else if (code == KeyCode.U)
                 {
-                    System.out.println("Still under developpement");
+                    killAllUnits();
                 }
                 else if (code == KeyCode.I)
                 {
-                    System.out.println("Still under developpement");
+                    if (!Flag.isFlagOnMap)
+                        generateFlag();
                 }
                 else if (code == KeyCode.O)
                 {
-                    System.out.println("Still under developpement");
+                    initGame();
                 }
                 else if (code == KeyCode.P)
                 {
-                    System.out.println("Still under developpement");
+                    generatePhilosophersStone();
                 }
 
             }

@@ -29,13 +29,13 @@ public class City extends Entity {
     };
 
     private int totalLogs;
-    private ArrayList<Position> positions;
+    private ArrayList<Position> positions; // ArrayList to store all position taken by the city
 
-    private long nextGeneratorUpdate;
-    private MovableEntity newUnits;
-    private boolean canGenerateUnits = false;
+    private long nextGeneratorUpdate; // timestamp for when the city can generate an units
+    private MovableEntity newUnits; // new units that will be generate
+    private boolean canGenerateUnits = false; // to know if the city can generate units
 
-    private int unitsIndex;
+    private Class<? extends MovableEntity> classNameUnitsToGenerate; // to know what movable entity will be generate
 
     public City(Position position, String side, HELBArmy gameBoard)
     {
@@ -47,67 +47,70 @@ public class City extends Entity {
         nextGeneratorUpdate = 0;
     }
 
+    // Method called by controller to call generation logics
     public void generateUnity(long currentTime)
     {
-        if (currentTime >= nextGeneratorUpdate) // generate new units
+        if (currentTime >= nextGeneratorUpdate) // if time has passed
         {
-            if (canGenerateUnits)
+            if (canGenerateUnits) // to avoid null pointer will className
             {
-                if (unitsIndex == 0)
-                {
-                    generateCollector();
-                }
-                else if (unitsIndex == 1)
-                {
-                    generateDeserter();
-                }
-                else if (unitsIndex == 2)
-                {
-                    generatePikemen();
-                }
-                else if (unitsIndex == 3)
-                {
-                    generateHorsemen();
-                }
-                
-                System.out.println("-------------------------------------------------");
-                System.out.println(toString() + " has generate " + newUnits.getClass().getName());
-                System.out.println("-------------------------------------------------");
-                gameBoard.entityList.add(newUnits);
-                gameBoard.unityList.add(newUnits);
+                generateUnity(classNameUnitsToGenerate);
                 canGenerateUnits = false;
             }
 
             choseUnitsToGenerate();
         }
-        else
-        {
-            // System.out.println("Can't generate units now | current time : " + currentTime + " | nex generator update : " + nextGeneratorUpdate);
+    }
+
+    /*
+        Method to generate a new units and add it in entiies list.
+        > get : className | find constructor and generate the units
+    */
+    public void generateUnity(Class<? extends MovableEntity> className)
+    {
+        try {
+            newUnits = className.getConstructor(Position.class, String.class, HELBArmy.class)
+                                .newInstance(
+                                    new Position(getUnityExitX(), getUnityExitY()),
+                                    this.getSide(),
+                                    gameBoard
+                                );
+
+            System.out.println("-------------------------------------------------");
+            System.out.println(toString() + " has generate " + newUnits.getClass().getName());
+            System.out.println("-------------------------------------------------");
+            gameBoard.entityList.add(newUnits);
+            gameBoard.unityList.add(newUnits);
+        } catch (Exception  e) {
+            e.printStackTrace();
         }
     }
 
-    private void generateCollector()
+    public int getLogsDepositX()
     {
-        newUnits = new Collector(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
+        if (getSide().equals("north"))
+            return this.position.x + this.getWidth();
+        return this.position.x - 1;
     }
 
-    private void generateDeserter()
+    public int getLogsDepositY()
     {
-        newUnits = new Deserter(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
+        return this.position.y + this.getWidth() / 2;
     }
 
-    private void generateHorsemen()
+    public ArrayList<Position> getPositions()
     {
-        newUnits = new Horsemen(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
-        
-    }
-    
-    private void generatePikemen()
-    {
-        newUnits = new Pikemen(new Position(getUnityExitX(), getUnityExitY()), this.getSide(), gameBoard);
+        return positions;
     }
 
-    public void choseUnitsToGenerate() {
+    // Called when a collector drop his log inventory
+    public void dropLogs(int nb)
+    {
+        this.totalLogs += nb;
+    }
+
+    // Method to chose the units that will be generated when possible (based on total logs of city)
+    private void choseUnitsToGenerate() {
         canGenerateUnits = true;
         int possibility = 0;
 
@@ -122,7 +125,7 @@ public class City extends Entity {
             }
         }
 
-        unitsIndex = new Random().nextInt(possibility);
+        int unitsIndex = new Random().nextInt(possibility);
 
         /*
             unitsIndex
@@ -132,10 +135,28 @@ public class City extends Entity {
                 3 -> Horsemen
         */
 
+        if (unitsIndex == 0)
+        {
+            classNameUnitsToGenerate = Collector.class;
+        }
+        else if (unitsIndex == 1)
+        {
+            classNameUnitsToGenerate = Deserter.class;
+        }
+        else if (unitsIndex == 2)
+        {
+            classNameUnitsToGenerate = Pikemen.class;
+        }
+        else if (unitsIndex == 3)
+        {
+            classNameUnitsToGenerate = Horsemen.class;
+        }
+
         nextGeneratorUpdate = new Date().getTime() + UNITS_COSTS[unitsIndex][1];
         totalLogs -= UNITS_COSTS[unitsIndex][0];
     }
 
+    // calculate positions of the current city
     private void setPositions()
     {
         positions = new ArrayList<>();
@@ -148,38 +169,16 @@ public class City extends Entity {
 
     }
 
-    public ArrayList<Position> getPositions()
-    {
-        return positions;
-    }
-
-    public void dropLogs(int nb)
-    {
-        this.totalLogs += nb;
-    }
-
-    public int getUnityExitX()
+    private int getUnityExitX()
     {
         return this.position.x + this.getWidth() / 2;
     }
 
-    public int getUnityExitY()
+    private int getUnityExitY()
     {
         if (getSide().equals("north"))
             return this.position.y + this.getWidth();
         return this.position.y - 1;
-    }
-
-    public int getLogsDepositX()
-    {
-        if (getSide().equals("north"))
-            return this.position.x + this.getWidth();
-        return this.position.x - 1;
-    }
-
-    public int getLogsDepositY()
-    {
-        return this.position.y + this.getWidth() / 2;
     }
 
     @Override
