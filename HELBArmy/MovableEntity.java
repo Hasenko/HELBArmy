@@ -127,6 +127,30 @@ public abstract class MovableEntity extends Entity {
         goToPosition(positionToGoTo);
     }
 
+    // method to get the nearest entity from caller from a list given
+    protected Entity getNearestEntity(ArrayList<Entity> entityList)
+    {
+        if (entityList.size() == 0) return null;
+
+        Entity nearestEntity = entityList.get(0);
+        double minDistance = Double.MAX_VALUE;
+
+        for (Entity entity : entityList)
+        {
+            if (entity != null)
+            {
+                double currentDistance = Board.getDistance(entity.position, this.position);
+
+                if (currentDistance <= minDistance)
+                {
+                    minDistance = currentDistance;
+                    nearestEntity = entity;
+                }
+            }
+        }
+        return nearestEntity;
+    }
+
     protected MovableEntity getNearestEnemy()
     {
         ArrayList<Entity> availableEnemy = new ArrayList<>();

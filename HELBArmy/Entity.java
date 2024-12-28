@@ -130,30 +130,6 @@ public abstract class Entity {
         return resultList;
     }
 
-    // method to get the nearest entity from caller from a list given
-    protected Entity getNearestEntity(ArrayList<Entity> entityList)
-    {
-        if (entityList.size() == 0) return null;
-
-        Entity nearestEntity = entityList.get(0);
-        double minDistance = Double.MAX_VALUE;
-
-        for (Entity entity : entityList)
-        {
-            if (entity != null)
-            {
-                double currentDistance = Board.getDistance(entity.position, this.position);
-
-                if (currentDistance <= minDistance)
-                {
-                    minDistance = currentDistance;
-                    nearestEntity = entity;
-                }
-            }
-        }
-        return nearestEntity;
-    }
-
     // method called when an entity must be destroyed from the game
     protected void destroy()
     {
