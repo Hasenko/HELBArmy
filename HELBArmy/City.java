@@ -117,7 +117,6 @@ public class City extends Entity {
         for (int[] cost : UNITS_COSTS)
         {
             int logsCost = cost[0];
-            // int timeCost = cost[1];
 
             if (totalLogs >= logsCost) // if we can generat the current units
             {
