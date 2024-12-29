@@ -3,7 +3,7 @@ import java.util.Date;
 public class Flag extends Collectable {
     private final int HP_BONUS_RATIO = 50;
 
-    public static final int DEFAULT_RESPAWN_TIME = 10000;
+    public static final int DEFAULT_RESPAWN_TIME = 120000;
     
     public static long flagRespawnTime = 0;
     public static boolean isFlagOnMap = false;
